@@ -1,0 +1,20 @@
+server:
+  port: 0
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT_INTERNAL:5432}/${POSTGRES_DB:command_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+    driverClassName: org.postgresql.Driver
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  config:
+    import: optional:configserver:http://${CONFIG_HOST:localhost}:8888
+  application:
+    name: url-command-service
