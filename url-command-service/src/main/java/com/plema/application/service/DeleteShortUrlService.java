@@ -3,35 +3,34 @@ package com.plema.application.service;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.plema.application.port.out.OutboxRepository;
 import com.plema.domain.aggregate.ShortUrlAggregate;
+import com.plema.domain.exception.ShortUrlNotFoundException;
 import com.plema.domain.repository.ShortUrlRepository;
 import com.plema.domain.service.UrlUniquenessChecker;
+import com.plema.domain.vo.ShortUrlId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.time.OffsetDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class CreateShortUrlService {
+public class DeleteShortUrlService {
 
     private final ShortUrlRepository shortUrlRepository;
-    private final UrlUniquenessChecker urlUniquenessChecker;
     private final OutboxRepository outboxRepository;
 
     @Transactional
-    public ShortUrlAggregate createShortUrl(String url, OffsetDateTime expiration) {
-        var nanoId = NanoIdUtils.randomNanoId();
-        var shortUrl = ShortUrlAggregate.create(nanoId, url, expiration);
+    public void deleteShortUrl(String id) {
+        var shortUrlId = new ShortUrlId(id);
 
-        urlUniquenessChecker.ensureUnique(shortUrl.getId());
+        var aggregate = shortUrlRepository.findById(shortUrlId).orElseThrow(() -> new ShortUrlNotFoundException("Url with id " + id + " not found"));
 
-        shortUrlRepository.save(shortUrl);
-        outboxRepository.saveEvents(shortUrl.getDomainEvents());
+        aggregate.delete();
 
-        shortUrl.clearDomainEvents();
+        shortUrlRepository.delete(aggregate);
 
-        return shortUrl;
+        outboxRepository.saveEvents(aggregate.getDomainEvents());
+        aggregate.clearDomainEvents();
     }
 }

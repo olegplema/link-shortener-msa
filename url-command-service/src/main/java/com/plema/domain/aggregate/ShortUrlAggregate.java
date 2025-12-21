@@ -1,6 +1,7 @@
 package com.plema.domain.aggregate;
 
 import com.plema.domain.event.ShortUrlCreatedEvent;
+import com.plema.domain.event.ShortUrlDeletedEvent;
 import com.plema.domain.vo.Expiration;
 import com.plema.domain.vo.OriginalUrl;
 import com.plema.domain.vo.ShortUrlId;
@@ -48,6 +49,10 @@ public class ShortUrlAggregate {
 
     public static ShortUrlAggregate reconstitute(ShortUrlId id, OriginalUrl originalUrl, Expiration expiration) {
         return new ShortUrlAggregate(id, originalUrl, expiration);
+    }
+
+    public void delete() {
+        registerEvent(new ShortUrlDeletedEvent(id.value()));
     }
 
     public List<DomainEvent> getDomainEvents() {

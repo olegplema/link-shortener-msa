@@ -1,6 +1,7 @@
 package com.plema.infrasturcture.adapter.in.rest;
 
 import com.plema.application.service.CreateShortUrlService;
+import com.plema.application.service.DeleteShortUrlService;
 import com.plema.infrasturcture.adapter.in.rest.dto.CreateShortUrlRequest;
 import com.plema.infrasturcture.adapter.in.rest.dto.CreateUrlResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class ShortUrlController {
 
     private final CreateShortUrlService createShortUrlService;
+    private final DeleteShortUrlService deleteShortUrlService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -24,5 +26,11 @@ public class ShortUrlController {
                 aggregate.getOriginalUrl().value(),
                 aggregate.getExpiration().value()
         );
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUrl(@PathVariable String id) {
+        deleteShortUrlService.deleteShortUrl(id);
     }
 }

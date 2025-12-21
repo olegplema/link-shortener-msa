@@ -20,11 +20,10 @@ public class OutboxRepositoryImpl implements OutboxRepository {
     public void saveEvents(List<DomainEvent> events) {
         if (events != null && !events.isEmpty()) {
             var outboxEntities = events.stream()
-                    .map(event -> outboxMapper.toEntity(event))
+                    .map(outboxMapper::toEntity)
                     .toList();
 
             outboxDao.saveAll(outboxEntities);
         }
     }
-
 }
