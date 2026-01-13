@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: url-query-service
+  config:
+    import: optional:configserver:http://${CONFIG_HOST:localhost}:${SERVICE_PORT:8888}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:native}
+  datasource:
+    url: jdbc:postgresql://${QUERY_DB_HOST:localhost}:${POSTGRES_PORT:5432}/${QUERY_DB_NAME:query_url_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  data:
+    redis:
+      host: ${QUERY_CACHE_HOST:localhost}
+      port: ${QUERY_CACHE_PORT:6379}
+      password: ${QUERY_CACHE_PASSWORD:password}
