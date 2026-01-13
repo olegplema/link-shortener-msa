@@ -1,20 +1,11 @@
-server:
-  port: 0
 spring:
-  datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT_INTERNAL:5432}/${POSTGRES_DB:command_db}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
-    driverClassName: org.postgresql.Driver
-  jpa:
-    database: POSTGRESQL
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  config:
-    import: optional:configserver:http://${CONFIG_HOST:localhost}:8888
   application:
     name: url-command-service
+  config:
+    import: optional:configserver:http://${CONFIG_HOST:localhost}:${SERVICE_PORT:8888}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:}
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${POSTGRES_PORT:5432}/${CMD_DB_NAME:cmd_url_db}
+    username: ${CMD_DB_USER}
+    password: ${CMD_DB_PASSWORD}

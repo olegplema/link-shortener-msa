@@ -1,6 +1,7 @@
 package com.plema.infrasturcture.persistence.mapper;
 
 import com.plema.domain.aggregate.ShortUrlAggregate;
+import com.plema.domain.vo.CreatedAt;
 import com.plema.domain.vo.Expiration;
 import com.plema.domain.vo.OriginalUrl;
 import com.plema.domain.vo.ShortUrlId;
@@ -27,7 +28,8 @@ public abstract class ShortUrlMapper {
         return ShortUrlAggregate.reconstitute(
                 new ShortUrlId(entity.getId()),
                 new OriginalUrl(entity.getOriginalUrl()),
-                new Expiration(entity.getExpiration())
+                new Expiration(entity.getExpiration()),
+                new CreatedAt(entity.getCreatedAt())
         );
     }
 }

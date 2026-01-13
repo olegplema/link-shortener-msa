@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.Clock;
 import java.time.OffsetDateTime;
 
 @Service
@@ -19,11 +20,12 @@ public class CreateShortUrlService {
     private final ShortUrlRepository shortUrlRepository;
     private final UrlUniquenessChecker urlUniquenessChecker;
     private final OutboxRepository outboxRepository;
+    private final Clock clock;
 
     @Transactional
-    public ShortUrlAggregate createShortUrl(String url, OffsetDateTime expiration) {
+    public ShortUrlAggregate createShortUrl(String url) {
         var nanoId = NanoIdUtils.randomNanoId();
-        var shortUrl = ShortUrlAggregate.create(nanoId, url, expiration);
+        var shortUrl = ShortUrlAggregate.create(nanoId, url, OffsetDateTime.now(clock));
 
         urlUniquenessChecker.ensureUnique(shortUrl.getId());
 

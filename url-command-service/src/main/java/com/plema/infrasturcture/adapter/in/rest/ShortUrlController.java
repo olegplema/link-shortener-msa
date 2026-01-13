@@ -19,7 +19,7 @@ public class ShortUrlController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CreateUrlResponse createUrl(@RequestBody CreateShortUrlRequest createShortUrlRequest) {
-        var aggregate = createShortUrlService.createShortUrl(createShortUrlRequest.originalUrl(), createShortUrlRequest.expiration());
+        var aggregate = createShortUrlService.createShortUrl(createShortUrlRequest.originalUrl());
 
         return new CreateUrlResponse(
                 aggregate.getId().value(),
