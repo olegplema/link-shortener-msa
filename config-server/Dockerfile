@@ -10,6 +10,8 @@ RUN gradle clean build -x test --no-daemon
 
 FROM eclipse-temurin:25-jre-alpine AS run
 
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup

@@ -1,0 +1,37 @@
+server:
+  port: ${SERVICE_PORT:8080}
+  shutdown: graceful
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        - id: url-command-service
+          uri: lb://url-command-service
+          predicates:
+            - Path=/api/urls/**
+            - Method=POST,DELETE
+
+        - id: url-query-service
+          uri: lb://url-query-service
+          predicates:
+            - Path=/r/**
+            - Method=GET
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
+      register-with-eureka: true
+      fetch-registry: true
+      registry-fetch-interval-seconds: 5
+

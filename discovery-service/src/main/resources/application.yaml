@@ -2,7 +2,8 @@ spring:
   application:
     name: discovery-service
 server:
-  port: 8761 # TODO change it to env variable
+  port: ${SERVICE_PORT:8888}
+  shutdown: graceful
 eureka:
   client:
     register-with-eureka: false
