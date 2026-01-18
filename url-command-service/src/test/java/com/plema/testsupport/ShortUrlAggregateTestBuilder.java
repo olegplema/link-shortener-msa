@@ -1,9 +1,9 @@
 package com.plema.testsupport;
 
-import com.plema.domain.aggregate.ShortUrlAggregate;
-import com.plema.domain.vo.Expiration;
-import com.plema.domain.vo.OriginalUrl;
-import com.plema.domain.vo.ShortUrlId;
+import com.plema.url_command_service.domain.aggregate.ShortUrlAggregate;
+import com.plema.url_command_service.domain.vo.Expiration;
+import com.plema.url_command_service.domain.vo.OriginalUrl;
+import com.plema.url_command_service.domain.vo.ShortUrlId;
 
 import java.time.OffsetDateTime;
 

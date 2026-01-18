@@ -1,7 +1,8 @@
 package com.plema.domain.service;
 
-import com.plema.domain.exception.UrlIdExistsException;
-import com.plema.domain.vo.ShortUrlId;
+import com.plema.url_command_service.domain.exception.UrlIdExistsException;
+import com.plema.url_command_service.domain.service.UrlUniquenessChecker;
+import com.plema.url_command_service.domain.vo.ShortUrlId;
 import com.plema.testsupport.StubShortUrlRepository;
 import org.junit.jupiter.api.Test;
 

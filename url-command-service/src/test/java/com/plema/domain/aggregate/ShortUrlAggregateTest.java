@@ -1,7 +1,8 @@
 package com.plema.domain.aggregate;
 
-import com.plema.domain.event.ShortUrlCreatedEvent;
-import com.plema.domain.event.ShortUrlDeletedEvent;
+import com.plema.url_command_service.domain.aggregate.ShortUrlAggregate;
+import com.plema.url_command_service.domain.event.ShortUrlCreatedEvent;
+import com.plema.url_command_service.domain.event.ShortUrlDeletedEvent;
 import com.plema.testsupport.ShortUrlAggregateTestBuilder;
 import org.junit.jupiter.api.Test;
 

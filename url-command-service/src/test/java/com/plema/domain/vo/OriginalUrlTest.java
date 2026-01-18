@@ -1,6 +1,7 @@
 package com.plema.domain.vo;
 
-import com.plema.domain.exception.InvalidUrlException;
+import com.plema.url_command_service.domain.exception.InvalidUrlException;
+import com.plema.url_command_service.domain.vo.OriginalUrl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

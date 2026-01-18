@@ -1,12 +1,13 @@
 package com.plema.application.service;
 
-import com.plema.application.port.out.OutboxRepository;
-import com.plema.domain.event.DomainEvent;
-import com.plema.domain.event.ShortUrlDeletedEvent;
-import com.plema.domain.exception.InvalidShortUrlIdException;
-import com.plema.domain.exception.ShortUrlNotFoundException;
-import com.plema.domain.repository.ShortUrlRepository;
-import com.plema.domain.vo.ShortUrlId;
+import com.plema.url_command_service.application.port.out.OutboxRepository;
+import com.plema.url_command_service.application.service.DeleteShortUrlService;
+import com.plema.url_command_service.domain.event.DomainEvent;
+import com.plema.url_command_service.domain.event.ShortUrlDeletedEvent;
+import com.plema.url_command_service.domain.exception.InvalidShortUrlIdException;
+import com.plema.url_command_service.domain.exception.ShortUrlNotFoundException;
+import com.plema.url_command_service.domain.repository.ShortUrlRepository;
+import com.plema.url_command_service.domain.vo.ShortUrlId;
 import com.plema.testsupport.ShortUrlAggregateTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

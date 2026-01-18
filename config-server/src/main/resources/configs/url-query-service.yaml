@@ -36,13 +36,6 @@ spring:
       enable-auto-commit: false
     listener:
       ack-mode: manual_immediate
-  eureka:
-    client:
-      service-url:
-        defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
-      register-with-eureka: true
-      fetch-registry: true
-      registry-fetch-interval-seconds: 5
   data:
     redis:
       lettuce:
@@ -51,6 +44,13 @@ spring:
           max-idle: 8
           min-idle: 0
       timeout: 2000ms
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    registry-fetch-interval-seconds: 5
 kafka:
   topics:
     short-url-events: short-url-events

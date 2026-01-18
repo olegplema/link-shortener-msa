@@ -27,11 +27,11 @@ spring:
           predicates:
             - Path=/r/**
             - Method=GET
-  eureka:
-    client:
-      service-url:
-        defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
-      register-with-eureka: true
-      fetch-registry: true
-      registry-fetch-interval-seconds: 5
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    registry-fetch-interval-seconds: 5
 

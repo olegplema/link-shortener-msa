@@ -1,8 +1,8 @@
 package com.plema.testsupport;
 
-import com.plema.domain.aggregate.ShortUrlAggregate;
-import com.plema.domain.repository.ShortUrlRepository;
-import com.plema.domain.vo.ShortUrlId;
+import com.plema.url_command_service.domain.aggregate.ShortUrlAggregate;
+import com.plema.url_command_service.domain.repository.ShortUrlRepository;
+import com.plema.url_command_service.domain.vo.ShortUrlId;
 
 import java.util.Optional;
 

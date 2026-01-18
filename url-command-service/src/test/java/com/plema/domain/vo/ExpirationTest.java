@@ -1,6 +1,7 @@
 package com.plema.domain.vo;
 
-import com.plema.domain.exception.InvalidExpirationException;
+import com.plema.url_command_service.domain.exception.InvalidExpirationException;
+import com.plema.url_command_service.domain.vo.Expiration;
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;

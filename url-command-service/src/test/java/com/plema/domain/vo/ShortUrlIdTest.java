@@ -1,6 +1,7 @@
 package com.plema.domain.vo;
 
-import com.plema.domain.exception.InvalidShortUrlIdException;
+import com.plema.url_command_service.domain.exception.InvalidShortUrlIdException;
+import com.plema.url_command_service.domain.vo.ShortUrlId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

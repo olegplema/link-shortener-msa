@@ -1,15 +1,16 @@
 package com.plema.application.service;
 
-import com.plema.application.port.out.OutboxRepository;
-import com.plema.domain.aggregate.ShortUrlAggregate;
-import com.plema.domain.event.DomainEvent;
-import com.plema.domain.event.ShortUrlCreatedEvent;
-import com.plema.domain.exception.InvalidExpirationException;
-import com.plema.domain.exception.InvalidUrlException;
-import com.plema.domain.exception.UrlIdExistsException;
-import com.plema.domain.repository.ShortUrlRepository;
-import com.plema.domain.service.UrlUniquenessChecker;
-import com.plema.domain.vo.ShortUrlId;
+import com.plema.url_command_service.application.port.out.OutboxRepository;
+import com.plema.url_command_service.application.service.CreateShortUrlService;
+import com.plema.url_command_service.domain.aggregate.ShortUrlAggregate;
+import com.plema.url_command_service.domain.event.DomainEvent;
+import com.plema.url_command_service.domain.event.ShortUrlCreatedEvent;
+import com.plema.url_command_service.domain.exception.InvalidExpirationException;
+import com.plema.url_command_service.domain.exception.InvalidUrlException;
+import com.plema.url_command_service.domain.exception.UrlIdExistsException;
+import com.plema.url_command_service.domain.repository.ShortUrlRepository;
+import com.plema.url_command_service.domain.service.UrlUniquenessChecker;
+import com.plema.url_command_service.domain.vo.ShortUrlId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

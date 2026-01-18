@@ -1,0 +1,26 @@
+{
+  "name": "outbox-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "url-command-service-db",
+    "database.port": "5432",
+    "database.user": "${env:CMD_DB_USER}",
+    "database.password": "${env:CMD_DB_PASSWORD}",
+    "database.dbname": "${env:CMD_DB_NAME}",
+    "database.server.name": "outbox-server",
+    "table.include.list": "public.outbox_entity",
+    "plugin.name": "pgoutput",
+    "slot.name": "debezium_outbox_slot",
+    "publication.name": "debezium_outbox_publication",
+    "publication.autocreate.mode": "filtered",
+    "tombstones.on.delete": "false",
+    "transforms": "outbox",
+    "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+    "transforms.outbox.table.field.event.id": "id",
+    "transforms.outbox.table.field.event.key": "id",
+    "transforms.outbox.table.field.event.type": "type",
+    "transforms.outbox.table.field.event.payload": "payload",
+    "transforms.outbox.route.topic.replacement": "${env:KAFKA_SHORT_URL_TOPIC}"
+  }
+}

@@ -1,7 +1,8 @@
 package com.plema.infrasturcture.config;
 
-import com.plema.domain.event.ShortUrlCreatedEvent;
-import com.plema.domain.event.ShortUrlDeletedEvent;
+import com.plema.url_command_service.domain.event.ShortUrlCreatedEvent;
+import com.plema.url_command_service.domain.event.ShortUrlDeletedEvent;
+import com.plema.url_command_service.infrasturcture.config.EventTypeRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.time.OffsetDateTime;
