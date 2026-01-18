@@ -1,6 +1,6 @@
 package com.plema.url_command_service.infrasturcture.persistence.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.plema.url_command_service.domain.event.DomainEvent;
 import com.plema.url_command_service.infrasturcture.config.EventTypeRegistry;
 import com.plema.url_command_service.infrasturcture.persistence.entity.OutboxEntity;

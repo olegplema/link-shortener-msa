@@ -7,8 +7,8 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:native}
   datasource:
     url: jdbc:postgresql://${QUERY_DB_HOST:localhost}:${POSTGRES_PORT:5432}/${QUERY_DB_NAME:query_url_db}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
+    username: ${QUERY_DB_USER:postgres}
+    password: ${QUERY_DB_PASSWORD:postgres}
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
   data:

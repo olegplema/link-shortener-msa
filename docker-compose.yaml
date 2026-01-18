@@ -55,150 +55,150 @@ services:
       timeout: 5s
       retries: 3
 
-  kafka1:
-    image: confluentinc/cp-kafka:7.8.0
-    hostname: kafka1
-    container_name: kafka1
-    ports:
-      - "9092:9092"
-      - "9093:9093"
-    environment:
-      KAFKA_NODE_ID: 1
-      KAFKA_BROKER_ID: 1
-      KAFKA_PROCESS_ROLES: ${KAFKA_PROCESS_ROLES}
-      KAFKA_CONTROLLER_QUORUM_VOTERS: ${KAFKA_CONTROLLER_QUORUM_VOTERS}
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka1:9092,CONTROLLER://kafka1:9093'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka1:9092'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
-      KAFKA_CONTROLLER_LISTENER_NAMES: ${KAFKA_CONTROLLER_LISTENER_NAMES}
-      KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
-      CLUSTER_ID: ${KAFKA_CLUSTER_ID}
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_DEFAULT_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
-      KAFKA_MIN_INSYNC_REPLICAS: ${KAFKA_MIN_INSYNC_REPLICAS}
-    volumes:
-      - kafka1-data:/var/lib/kafka/data
-    networks:
-      - backend-network
-    healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-
-  kafka2:
-    image: confluentinc/cp-kafka:7.8.0
-    hostname: kafka2
-    container_name: kafka2
-    ports:
-      - "9094:9092"
-      - "9095:9093"
-    environment:
-      KAFKA_NODE_ID: 2
-      KAFKA_BROKER_ID: 2
-      KAFKA_PROCESS_ROLES: ${KAFKA_PROCESS_ROLES}
-      KAFKA_CONTROLLER_QUORUM_VOTERS: ${KAFKA_CONTROLLER_QUORUM_VOTERS}
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka2:9092,CONTROLLER://kafka2:9093'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka2:9092'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
-      KAFKA_CONTROLLER_LISTENER_NAMES: ${KAFKA_CONTROLLER_LISTENER_NAMES}
-      KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
-      CLUSTER_ID: ${KAFKA_CLUSTER_ID}
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_DEFAULT_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
-      KAFKA_MIN_INSYNC_REPLICAS: ${KAFKA_MIN_INSYNC_REPLICAS}
-    volumes:
-      - kafka2-data:/var/lib/kafka/data
-    networks:
-      - backend-network
-    healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-
-  kafka3:
-    image: confluentinc/cp-kafka:7.8.0
-    hostname: kafka3
-    container_name: kafka3
-    ports:
-      - "9096:9092"
-      - "9097:9093"
-    environment:
-      KAFKA_NODE_ID: 3
-      KAFKA_BROKER_ID: 3
-      KAFKA_PROCESS_ROLES: ${KAFKA_PROCESS_ROLES}
-      KAFKA_CONTROLLER_QUORUM_VOTERS: ${KAFKA_CONTROLLER_QUORUM_VOTERS}
-      KAFKA_LISTENERS: 'PLAINTEXT://kafka3:9092,CONTROLLER://kafka3:9093'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka3:9092'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
-      KAFKA_CONTROLLER_LISTENER_NAMES: ${KAFKA_CONTROLLER_LISTENER_NAMES}
-      KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
-      CLUSTER_ID: ${KAFKA_CLUSTER_ID}
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_DEFAULT_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
-      KAFKA_MIN_INSYNC_REPLICAS: ${KAFKA_MIN_INSYNC_REPLICAS}
-    volumes:
-      - kafka3-data:/var/lib/kafka/data
-    networks:
-      - backend-network
-    healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-
-  debezium:
-    image: quay.io/debezium/connect:3.0
-    ports:
-      - "8083:8083"
-    environment:
-      BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-      GROUP_ID: debezium
-      CONFIG_STORAGE_TOPIC: debezium_configs
-      OFFSET_STORAGE_TOPIC: debezium_offsets
-      STATUS_STORAGE_TOPIC: debezium_statuses
-      CONFIG_STORAGE_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
-      OFFSET_STORAGE_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
-      STATUS_STORAGE_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
-    networks:
-      - backend-network
-    depends_on:
-      kafka1:
-        condition: service_healthy
-      kafka2:
-        condition: service_healthy
-      kafka3:
-        condition: service_healthy
-      url-command-service-db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8083/"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    ports:
-      - "9000:${SERVICE_PORT}"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: ${KAFKA_CLUSTER_NAME}
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-    depends_on:
-      - kafka1
-      - kafka2
-      - kafka3
-    networks:
-      - backend-network
-      - public-network
+#  kafka1:
+#    image: confluentinc/cp-kafka:7.8.0
+#    hostname: kafka1
+#    container_name: kafka1
+#    ports:
+#      - "9092:9092"
+#      - "9093:9093"
+#    environment:
+#      KAFKA_NODE_ID: 1
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_PROCESS_ROLES: ${KAFKA_PROCESS_ROLES}
+#      KAFKA_CONTROLLER_QUORUM_VOTERS: ${KAFKA_CONTROLLER_QUORUM_VOTERS}
+#      KAFKA_LISTENERS: 'PLAINTEXT://kafka1:9092,CONTROLLER://kafka1:9093'
+#      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka1:9092'
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
+#      KAFKA_CONTROLLER_LISTENER_NAMES: ${KAFKA_CONTROLLER_LISTENER_NAMES}
+#      KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
+#      CLUSTER_ID: ${KAFKA_CLUSTER_ID}
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
+#      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
+#      KAFKA_MIN_INSYNC_REPLICAS: ${KAFKA_MIN_INSYNC_REPLICAS}
+#    volumes:
+#      - kafka1-data:/var/lib/kafka/data
+#    networks:
+#      - backend-network
+#    healthcheck:
+#      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+#      interval: 10s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 30s
+#
+#  kafka2:
+#    image: confluentinc/cp-kafka:7.8.0
+#    hostname: kafka2
+#    container_name: kafka2
+#    ports:
+#      - "9094:9092"
+#      - "9095:9093"
+#    environment:
+#      KAFKA_NODE_ID: 2
+#      KAFKA_BROKER_ID: 2
+#      KAFKA_PROCESS_ROLES: ${KAFKA_PROCESS_ROLES}
+#      KAFKA_CONTROLLER_QUORUM_VOTERS: ${KAFKA_CONTROLLER_QUORUM_VOTERS}
+#      KAFKA_LISTENERS: 'PLAINTEXT://kafka2:9092,CONTROLLER://kafka2:9093'
+#      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka2:9092'
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
+#      KAFKA_CONTROLLER_LISTENER_NAMES: ${KAFKA_CONTROLLER_LISTENER_NAMES}
+#      KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
+#      CLUSTER_ID: ${KAFKA_CLUSTER_ID}
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
+#      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
+#      KAFKA_MIN_INSYNC_REPLICAS: ${KAFKA_MIN_INSYNC_REPLICAS}
+#    volumes:
+#      - kafka2-data:/var/lib/kafka/data
+#    networks:
+#      - backend-network
+#    healthcheck:
+#      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+#      interval: 10s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 30s
+#
+#  kafka3:
+#    image: confluentinc/cp-kafka:7.8.0
+#    hostname: kafka3
+#    container_name: kafka3
+#    ports:
+#      - "9096:9092"
+#      - "9097:9093"
+#    environment:
+#      KAFKA_NODE_ID: 3
+#      KAFKA_BROKER_ID: 3
+#      KAFKA_PROCESS_ROLES: ${KAFKA_PROCESS_ROLES}
+#      KAFKA_CONTROLLER_QUORUM_VOTERS: ${KAFKA_CONTROLLER_QUORUM_VOTERS}
+#      KAFKA_LISTENERS: 'PLAINTEXT://kafka3:9092,CONTROLLER://kafka3:9093'
+#      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka3:9092'
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
+#      KAFKA_CONTROLLER_LISTENER_NAMES: ${KAFKA_CONTROLLER_LISTENER_NAMES}
+#      KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
+#      CLUSTER_ID: ${KAFKA_CLUSTER_ID}
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
+#      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
+#      KAFKA_MIN_INSYNC_REPLICAS: ${KAFKA_MIN_INSYNC_REPLICAS}
+#    volumes:
+#      - kafka3-data:/var/lib/kafka/data
+#    networks:
+#      - backend-network
+#    healthcheck:
+#      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+#      interval: 10s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 30s
+#
+#  debezium:
+#    image: quay.io/debezium/connect:3.0
+#    ports:
+#      - "8083:8083"
+#    environment:
+#      BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+#      GROUP_ID: debezium
+#      CONFIG_STORAGE_TOPIC: debezium_configs
+#      OFFSET_STORAGE_TOPIC: debezium_offsets
+#      STATUS_STORAGE_TOPIC: debezium_statuses
+#      CONFIG_STORAGE_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
+#      OFFSET_STORAGE_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
+#      STATUS_STORAGE_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR}
+#    networks:
+#      - backend-network
+#    depends_on:
+#      kafka1:
+#        condition: service_healthy
+#      kafka2:
+#        condition: service_healthy
+#      kafka3:
+#        condition: service_healthy
+#      url-command-service-db:
+#        condition: service_healthy
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8083/"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#      start_period: 30s
+#
+#  kafka-ui:
+#    image: provectuslabs/kafka-ui:latest
+#    ports:
+#      - "9000:${SERVICE_PORT}"
+#    environment:
+#      KAFKA_CLUSTERS_0_NAME: ${KAFKA_CLUSTER_NAME}
+#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+#    depends_on:
+#      - kafka1
+#      - kafka2
+#      - kafka3
+#    networks:
+#      - backend-network
+#      - public-network
 
   config-server:
     build: ./config-server
@@ -208,7 +208,6 @@ services:
       - "8888:${SERVICE_PORT}"
     networks:
       - backend-network
-      - public-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/actuator/health"]
       interval: 10s
@@ -224,7 +223,6 @@ services:
       - "8761:${SERVICE_PORT}"
     networks:
       - backend-network
-      - public-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/actuator/health"]
       interval: 10s
@@ -235,25 +233,26 @@ services:
       config-server:
         condition: service_healthy
 
-  gateway:
-    build: ./gateway
-    env_file:
-      - .env
-    ports:
-      - "8080:${SERVICE_PORT}"
-    networks:
-      - public-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-service:
-        condition: service_healthy
+#  gateway:
+#    build: ./gateway
+#    env_file:
+#      - .env
+#    ports:
+#      - "8080:${SERVICE_PORT}"
+#    networks:
+#      - public-network
+#      - backend-network
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/actuator/health"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
+#      start_period: 40s
+#    depends_on:
+#      config-server:
+#        condition: service_healthy
+#      discovery-service:
+#        condition: service_healthy
 
   url-command-service:
     build: ./url-command-service
@@ -279,43 +278,43 @@ services:
         condition: service_healthy
       url-command-service-db:
         condition: service_healthy
-      kafka1:
-        condition: service_started
-      kafka2:
-        condition: service_started
-      kafka3:
-        condition: service_started
-
-  url-query-service:
-    build: ./url-query-service
-    container_name: url-query-service
-    env_file:
-      - .env
-      - ./url-query-service/.env
-    ports:
-      - "8082:${SERVICE_PORT}"
-    networks:
-      - backend-network
-      - public-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-service:
-        condition: service_healthy
-      url-query-service-db:
-        condition: service_healthy
-      kafka1:
-        condition: service_started
-      kafka2:
-        condition: service_started
-      kafka3:
-        condition: service_started
+#      kafka1:
+#        condition: service_started
+#      kafka2:
+#        condition: service_started
+#      kafka3:
+#        condition: service_started
+#
+#  url-query-service:
+#    build: ./url-query-service
+#    container_name: url-query-service
+#    env_file:
+#      - .env
+#      - ./url-query-service/.env
+#    ports:
+#      - "8082:${SERVICE_PORT}"
+#    networks:
+#      - backend-network
+#      - public-network
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/actuator/health"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
+#      start_period: 40s
+#    depends_on:
+#      config-server:
+#        condition: service_healthy
+#      discovery-service:
+#        condition: service_healthy
+#      url-query-service-db:
+#        condition: service_healthy
+#      kafka1:
+#        condition: service_started
+#      kafka2:
+#        condition: service_started
+#      kafka3:
+#        condition: service_started
 
 networks:
   public-network:

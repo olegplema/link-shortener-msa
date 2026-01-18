@@ -70,8 +70,8 @@ class DeleteShortUrlServiceTest {
 
         assertThat(idCaptor.getValue().value()).isEqualTo(id);
         assertThat(savedEvents).hasSize(1);
-        assertThat(savedEvents.get(0)).isInstanceOf(ShortUrlDeletedEvent.class);
-        var event = (ShortUrlDeletedEvent) savedEvents.get(0);
+        assertThat(savedEvents.getFirst()).isInstanceOf(ShortUrlDeletedEvent.class);
+        var event = (ShortUrlDeletedEvent) savedEvents.getFirst();
         assertThat(event.id()).isEqualTo(id);
 
         assertThat(aggregate.getDomainEvents()).isEmpty();
