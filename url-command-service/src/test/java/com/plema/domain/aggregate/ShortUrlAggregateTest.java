@@ -17,13 +17,15 @@ class ShortUrlAggregateTest {
     void should_register_created_event_when_created() {
         var id = "abcde1";
         var url = "http://example.com";
-        var expiration = OffsetDateTime.now().plusDays(1);
+        var now = OffsetDateTime.now();
+        var expectedExpiration = now.plusDays(7);
 
-        var aggregate = ShortUrlAggregate.create(id, url, expiration);
+        var aggregate = ShortUrlAggregate.create(id, url, now);
 
         assertThat(aggregate.getId().value()).isEqualTo(id);
         assertThat(aggregate.getOriginalUrl().value()).isEqualTo(url);
-        assertThat(aggregate.getExpiration().value()).isEqualTo(expiration);
+        assertThat(aggregate.getExpiration().value()).isEqualTo(expectedExpiration);
+        assertThat(aggregate.getCreatedAt().value()).isEqualTo(now);
         assertThat(aggregate.getDomainEvents()).hasSize(1);
 
         var event = aggregate.getDomainEvents().get(0);
@@ -31,7 +33,8 @@ class ShortUrlAggregateTest {
         var createdEvent = (ShortUrlCreatedEvent) event;
         assertThat(createdEvent.id()).isEqualTo(id);
         assertThat(createdEvent.originalUrl()).isEqualTo(url);
-        assertThat(createdEvent.expiration()).isEqualTo(expiration);
+        assertThat(createdEvent.expiration()).isEqualTo(expectedExpiration);
+        assertThat(createdEvent.createdAt()).isEqualTo(now);
     }
 
     @Test

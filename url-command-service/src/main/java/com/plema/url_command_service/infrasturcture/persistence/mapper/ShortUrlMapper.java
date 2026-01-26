@@ -16,7 +16,7 @@ public abstract class ShortUrlMapper {
     @Mapping(target = "id", source = "id.value")
     @Mapping(target = "originalUrl", source = "originalUrl.value")
     @Mapping(target = "expiration", source = "expiration.value")
-    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdAt", source = "createdAt.value")
     public abstract ShortUrlEntity toEntity(ShortUrlAggregate aggregate);
 
 

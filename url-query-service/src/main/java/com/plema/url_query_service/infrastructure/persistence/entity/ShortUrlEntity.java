@@ -24,7 +24,7 @@ public class ShortUrlEntity {
     @Column(nullable = false)
     private Integer clickCount;
 
-    @Column(nullable = false)
+    @Column
     private OffsetDateTime lastAccessedAt;
 
     @Column(nullable = false)

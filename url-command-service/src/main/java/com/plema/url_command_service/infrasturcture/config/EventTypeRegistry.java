@@ -8,10 +8,16 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class EventTypeRegistry {
 
-    public String resolveType(DomainEvent event) {
+    public static String resolveAggregateType(DomainEvent event) {
         return switch (event) {
-            case ShortUrlCreatedEvent _ -> "plema.url.created.v1";
-            case ShortUrlDeletedEvent _ -> "plema.url.deleted.v1";
+            case ShortUrlCreatedEvent _, ShortUrlDeletedEvent _ -> "shorturl";
+        };
+    }
+
+    public String resolveEventType(DomainEvent event) {
+        return switch (event) {
+            case ShortUrlCreatedEvent _ -> "created.v1";
+            case ShortUrlDeletedEvent _ -> "deleted.v1";
         };
     }
 }

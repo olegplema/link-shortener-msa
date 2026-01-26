@@ -5,20 +5,20 @@ import com.plema.url_command_service.application.service.CreateShortUrlService;
 import com.plema.url_command_service.domain.aggregate.ShortUrlAggregate;
 import com.plema.url_command_service.domain.event.DomainEvent;
 import com.plema.url_command_service.domain.event.ShortUrlCreatedEvent;
-import com.plema.url_command_service.domain.exception.InvalidExpirationException;
 import com.plema.url_command_service.domain.exception.InvalidUrlException;
 import com.plema.url_command_service.domain.exception.UrlIdExistsException;
 import com.plema.url_command_service.domain.repository.ShortUrlRepository;
 import com.plema.url_command_service.domain.service.UrlUniquenessChecker;
 import com.plema.url_command_service.domain.vo.ShortUrlId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +44,9 @@ class CreateShortUrlServiceTest {
     @Mock
     private OutboxRepository outboxRepository;
 
-    @InjectMocks
     private CreateShortUrlService createShortUrlService;
+
+    private OffsetDateTime now;
 
     @Captor
     private ArgumentCaptor<ShortUrlAggregate> aggregateCaptor;
@@ -53,10 +54,17 @@ class CreateShortUrlServiceTest {
     @Captor
     private ArgumentCaptor<ShortUrlId> idCaptor;
 
+    @BeforeEach
+    void setUp() {
+        now = OffsetDateTime.now();
+        Clock clock = Clock.fixed(now.toInstant(), now.getOffset());
+        createShortUrlService = new CreateShortUrlService(shortUrlRepository, urlUniquenessChecker, outboxRepository, clock);
+    }
+
     @Test
     void should_create_short_url_and_publish_event_when_request_valid() {
         var url = "http://example.com";
-        var expiration = OffsetDateTime.now().plusDays(1);
+        var expectedExpiration = now.plusDays(7);
         var savedEvents = new ArrayList<DomainEvent>();
 
         doAnswer(invocation -> {
@@ -65,7 +73,7 @@ class CreateShortUrlServiceTest {
             return null;
         }).when(outboxRepository).saveEvents(anyList());
 
-        var result = createShortUrlService.createShortUrl(url, expiration);
+        var result = createShortUrlService.createShortUrl(url);
 
         verify(shortUrlRepository).save(aggregateCaptor.capture());
         verify(urlUniquenessChecker).ensureUnique(idCaptor.capture());
@@ -73,7 +81,8 @@ class CreateShortUrlServiceTest {
 
         var savedAggregate = aggregateCaptor.getValue();
         assertThat(savedAggregate.getOriginalUrl().value()).isEqualTo(url);
-        assertThat(savedAggregate.getExpiration().value()).isEqualTo(expiration);
+        assertThat(savedAggregate.getExpiration().value()).isEqualTo(expectedExpiration);
+        assertThat(savedAggregate.getCreatedAt().value()).isEqualTo(now);
         assertThat(idCaptor.getValue().value()).isEqualTo(savedAggregate.getId().value());
 
         assertThat(savedEvents).hasSize(1);
@@ -81,7 +90,8 @@ class CreateShortUrlServiceTest {
         var event = (ShortUrlCreatedEvent) savedEvents.getFirst();
         assertThat(event.id()).isEqualTo(savedAggregate.getId().value());
         assertThat(event.originalUrl()).isEqualTo(url);
-        assertThat(event.expiration()).isEqualTo(expiration);
+        assertThat(event.expiration()).isEqualTo(expectedExpiration);
+        assertThat(event.createdAt()).isEqualTo(now);
 
         assertThat(result.getDomainEvents()).isEmpty();
     }
@@ -90,19 +100,8 @@ class CreateShortUrlServiceTest {
     void should_throw_when_url_invalid() {
         var invalidUrl = "ftp://example.com";
 
-        assertThatThrownBy(() -> createShortUrlService.createShortUrl(invalidUrl, OffsetDateTime.now().plusDays(1)))
+        assertThatThrownBy(() -> createShortUrlService.createShortUrl(invalidUrl))
                 .isInstanceOf(InvalidUrlException.class);
-
-        verifyNoInteractions(urlUniquenessChecker, shortUrlRepository, outboxRepository);
-    }
-
-    @Test
-    void should_throw_when_expiration_in_past() {
-        var url = "http://example.com";
-        var pastExpiration = OffsetDateTime.now().minusDays(1);
-
-        assertThatThrownBy(() -> createShortUrlService.createShortUrl(url, pastExpiration))
-                .isInstanceOf(InvalidExpirationException.class);
 
         verifyNoInteractions(urlUniquenessChecker, shortUrlRepository, outboxRepository);
     }
@@ -110,13 +109,12 @@ class CreateShortUrlServiceTest {
     @Test
     void should_throw_when_short_url_id_already_exists() {
         var url = "http://example.com";
-        var expiration = OffsetDateTime.now().plusDays(1);
 
         doThrow(new UrlIdExistsException("Short URL already exists."))
                 .when(urlUniquenessChecker)
                 .ensureUnique(any(ShortUrlId.class));
 
-        assertThatThrownBy(() -> createShortUrlService.createShortUrl(url, expiration))
+        assertThatThrownBy(() -> createShortUrlService.createShortUrl(url))
                 .isInstanceOf(UrlIdExistsException.class);
 
         verify(urlUniquenessChecker).ensureUnique(any(ShortUrlId.class));

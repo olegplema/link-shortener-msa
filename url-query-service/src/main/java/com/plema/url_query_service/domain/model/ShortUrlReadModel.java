@@ -9,4 +9,3 @@ public record ShortUrlReadModel(String id,
                                 OffsetDateTime createdAt
 ) {
 }
-

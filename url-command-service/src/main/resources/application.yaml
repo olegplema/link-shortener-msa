@@ -3,9 +3,28 @@ spring:
     name: url-command-service
   config:
     import: optional:configserver:http://${CONFIG_HOST:localhost}:${SERVICE_PORT:8888}
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:}
+#  profiles:
+#    active: ${SPRING_PROFILES_ACTIVE:native}
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${POSTGRES_PORT:5432}/${CMD_DB_NAME:cmd_url_db}
     username: ${CMD_DB_USER}
     password: ${CMD_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: query-pool
+  jpa:
+    hibernate:
+      ddl-auto: validate # TODO try to remove it
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: OFF
+    org.hibernate.tool.schema: DEBUG
+    org.hibernate.orm.schema: DEBUG
+    org.springframework.boot.context.properties: DEBUG

@@ -9,6 +9,17 @@ spring:
     url: jdbc:postgresql://${QUERY_DB_HOST:localhost}:${POSTGRES_PORT:5432}/${QUERY_DB_NAME:query_url_db}
     username: ${QUERY_DB_USER:postgres}
     password: ${QUERY_DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: query-pool
+  jpa:
+    hibernate:
+      ddl-auto: validate # TODO try to remove it
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
   data:
@@ -16,3 +27,10 @@ spring:
       host: ${QUERY_CACHE_HOST:localhost}
       port: ${QUERY_CACHE_PORT:6379}
       password: ${QUERY_CACHE_PASSWORD:password}
+logging:
+  level:
+    root: INFO
+    org.springframework.kafka: WARN
+    org.apache.kafka: WARN
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql: OFF

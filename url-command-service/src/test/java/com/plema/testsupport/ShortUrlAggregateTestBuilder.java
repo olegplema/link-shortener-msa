@@ -1,6 +1,7 @@
 package com.plema.testsupport;
 
 import com.plema.url_command_service.domain.aggregate.ShortUrlAggregate;
+import com.plema.url_command_service.domain.vo.CreatedAt;
 import com.plema.url_command_service.domain.vo.Expiration;
 import com.plema.url_command_service.domain.vo.OriginalUrl;
 import com.plema.url_command_service.domain.vo.ShortUrlId;
@@ -13,6 +14,7 @@ public final class ShortUrlAggregateTestBuilder {
 
     private String id = DEFAULT_ID;
     private String url = DEFAULT_URL;
+    private OffsetDateTime createdAt = OffsetDateTime.now();
     private OffsetDateTime expiration = OffsetDateTime.now().plusDays(1);
 
     private ShortUrlAggregateTestBuilder() {
@@ -37,15 +39,21 @@ public final class ShortUrlAggregateTestBuilder {
         return this;
     }
 
+    public ShortUrlAggregateTestBuilder withCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
     public ShortUrlAggregate buildCreated() {
-        return ShortUrlAggregate.create(id, url, expiration);
+        return ShortUrlAggregate.create(id, url, createdAt);
     }
 
     public ShortUrlAggregate buildReconstituted() {
         return ShortUrlAggregate.reconstitute(
                 new ShortUrlId(id),
                 new OriginalUrl(url),
-                new Expiration(expiration)
+                new Expiration(expiration),
+                new CreatedAt(createdAt)
         );
     }
 }

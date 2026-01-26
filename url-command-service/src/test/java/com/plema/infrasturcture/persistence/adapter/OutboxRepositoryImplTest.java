@@ -40,7 +40,9 @@ class OutboxRepositoryImplTest {
 
     @Test
     void should_save_outbox_entities_when_events_present() {
-        var createdEvent = new ShortUrlCreatedEvent("abcde1", "http://example.com", OffsetDateTime.now().plusDays(1));
+        var createdAt = OffsetDateTime.now();
+        var expiration = createdAt.plusDays(1);
+        var createdEvent = new ShortUrlCreatedEvent("abcde1", "http://example.com", expiration, createdAt);
         var deletedEvent = new ShortUrlDeletedEvent("abcde2");
         var createdEntity = new OutboxEntity();
         createdEntity.setType("plema.url.created.v1");

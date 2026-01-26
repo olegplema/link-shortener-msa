@@ -17,8 +17,11 @@ public abstract class OutboxMapper {
     private ObjectMapper objectMapper;
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "type", expression = "java(EventTypeRegistry.resolveType(event))")
+    @Mapping(target = "aggregateType", expression = "java(EventTypeRegistry.resolveAggregateType(event))")
+    @Mapping(target = "aggregateId", expression = "java(event.id())")
+    @Mapping(target = "eventType", expression = "java(EventTypeRegistry.resolveEventType(event))")
     @Mapping(target = "payload", source = "event", qualifiedByName = "eventToJson")
+    @Mapping(target = "createdAt", ignore = true)
     public abstract OutboxEntity toEntity(DomainEvent event);
 
     @Named("eventToJson")

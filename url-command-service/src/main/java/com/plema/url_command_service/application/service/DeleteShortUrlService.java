@@ -8,12 +8,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.OffsetDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class DeleteShortUrlService {
 
     private final ShortUrlRepository shortUrlRepository;
     private final OutboxRepository outboxRepository;
+    private final Clock clock;
 
     @Transactional
     public void deleteShortUrl(String id) {
@@ -21,7 +25,7 @@ public class DeleteShortUrlService {
 
         var aggregate = shortUrlRepository.findById(shortUrlId).orElseThrow(() -> new ShortUrlNotFoundException("Url with id " + id + " not found"));
 
-        aggregate.delete();
+        aggregate.delete(OffsetDateTime.now(clock));
 
         shortUrlRepository.delete(aggregate);
 

@@ -60,8 +60,8 @@ public class ShortUrlAggregate {
         return new ShortUrlAggregate(id, originalUrl, expiration, createdAt);
     }
 
-    public void delete() {
-        registerEvent(new ShortUrlDeletedEvent(id.value()));
+    public void delete(OffsetDateTime dateTime) {
+        registerEvent(new ShortUrlDeletedEvent(id.value(), dateTime));
     }
 
     public List<DomainEvent> getDomainEvents() {

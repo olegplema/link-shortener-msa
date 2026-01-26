@@ -2,18 +2,9 @@ server:
   port: ${INTERNAL_SERVICE_PORT:8080}
   shutdown: graceful
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-  hikari:
-    maximum-pool-size: 20
-    minimum-idle: 5
-    connection-timeout: 30000
-    idle-timeout: 600000
-    max-lifetime: 1800000
-    pool-name: query-pool
   jpa:
     database: POSTGRESQL
-    show-sql: false
+    show-sql: true
     hibernate:
       ddl-auto: validate
     properties:
@@ -26,8 +17,3 @@ spring:
       register-with-eureka: true
       fetch-registry: true
       registry-fetch-interval-seconds: 5
-logging:
-  level:
-    root: INFO
-    org.hibernate.SQL: OFF
-    org.hibernate.type.descriptor.sql: OFF
