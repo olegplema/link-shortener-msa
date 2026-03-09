@@ -28,8 +28,22 @@ spring:
         spring.json.type.mapping: "created.v1:com.plema.url_query_service.domain.event.ShortUrlCreatedEvent,deleted.v1:com.plema.url_query_service.domain.event.ShortUrlDeletedEvent"
       auto-offset-reset: earliest
       enable-auto-commit: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: true
+        spring.json.type.mapping: "created.v1:com.plema.url_query_service.domain.event.ShortUrlCreatedEvent,deleted.v1:com.plema.url_query_service.domain.event.ShortUrlDeletedEvent"
     listener:
       ack-mode: manual_immediate
+    retry:
+      topic:
+        enabled: true
+        attempts: 4
+        backoff:
+          delay: 500ms
+          multiplier: 2.0
+          max-delay: 5s
   data:
     redis:
       lettuce:
@@ -37,7 +51,7 @@ spring:
           max-active: 8
           max-idle: 8
           min-idle: 0
-      timeout: 2000ms
+      timeout: 200ms
 eureka:
   client:
     service-url:
@@ -48,3 +62,10 @@ eureka:
 kafka:
   topics:
     short-url-events: plema.shorturl
+  retry:
+    topic:
+      retry-suffix: -retry
+      dlt-suffix: -dlt
+      auto-create-topics: true
+      num-partitions: 1
+      replication-factor: 1

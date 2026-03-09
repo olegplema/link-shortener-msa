@@ -266,11 +266,8 @@ services:
     env_file:
       - .env
       - ./url-command-service/.env
-    ports:
-      - "8081:${SERVICE_PORT}"
     networks:
       - backend-network
-      - public-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/actuator/health"]
       interval: 10s
@@ -297,11 +294,8 @@ services:
     env_file:
       - .env
       - ./url-query-service/.env
-    ports:
-      - "8082:${SERVICE_PORT}"
     networks:
       - backend-network
-      - public-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/actuator/health"]
       interval: 10s
