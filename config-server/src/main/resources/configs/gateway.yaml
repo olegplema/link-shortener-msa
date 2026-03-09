@@ -6,6 +6,9 @@ spring:
     gateway:
       server:
         webflux:
+          httpclient:
+            connect-timeout: 1000
+            response-timeout: 5s
           discovery:
             locator:
               enabled: true
@@ -27,12 +30,16 @@ spring:
               predicates:
                 - Path=/api/urls,/api/urls/**
                 - Method=POST,DELETE
+              metadata:
+                response-timeout: 5000
 
             - id: url-query-service
               uri: lb://url-query-service
               predicates:
                 - Path=/r/**
                 - Method=GET
+              metadata:
+                response-timeout: 2000
 eureka:
   client:
     service-url:
