@@ -4,29 +4,35 @@ server:
 spring:
   cloud:
     gateway:
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: "http://localhost:3000"
-            allowedMethods:
-              - GET
-              - POST
-              - DELETE
-              - OPTIONS
-            allowedHeaders: "*"
-            allowCredentials: true
-      routes:
-        - id: url-command-service
-          uri: lb://url-command-service
-          predicates:
-            - Path=/api/urls/**
-            - Method=POST,DELETE
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: "http://localhost:3000" # TODO
+                allowedMethods:
+                  - GET
+                  - POST
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
+          routes:
+            - id: url-command-service
+              uri: lb://url-command-service
+              predicates:
+                - Path=/api/urls,/api/urls/**
+                - Method=POST,DELETE
 
-        - id: url-query-service
-          uri: lb://url-query-service
-          predicates:
-            - Path=/r/**
-            - Method=GET
+            - id: url-query-service
+              uri: lb://url-query-service
+              predicates:
+                - Path=/r/**
+                - Method=GET
 eureka:
   client:
     service-url:
@@ -34,4 +40,3 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     registry-fetch-interval-seconds: 5
-

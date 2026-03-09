@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS short_url_entity (
+CREATE TABLE IF NOT EXISTS short_urls (
     id VARCHAR(255) PRIMARY KEY,
     original_url VARCHAR(255) NOT NULL,
     expiration TIMESTAMPTZ NOT NULL,

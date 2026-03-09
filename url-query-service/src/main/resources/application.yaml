@@ -17,9 +17,6 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       pool-name: query-pool
-  jpa:
-    hibernate:
-      ddl-auto: validate # TODO try to remove it
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
   data:

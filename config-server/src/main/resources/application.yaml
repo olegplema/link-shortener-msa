@@ -14,6 +14,6 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://discovery-service:8080/eureka/ # TODO env
+      defaultZone: http://${EUREKA_HOST:localhost}:${SERVICE_PORT:8761}/eureka/
     register-with-eureka: false
     fetch-registry: false
