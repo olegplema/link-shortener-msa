@@ -10,6 +10,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  transaction:
+    default-timeout: 4s
 eureka:
   client:
     service-url:

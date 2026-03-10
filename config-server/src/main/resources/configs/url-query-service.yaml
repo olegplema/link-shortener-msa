@@ -14,12 +14,18 @@ spring:
         format_sql: true
         jdbc:
           batch_size: 20
+  transaction:
+    default-timeout: 1500ms
   kafka:
     consumer:
       group-id: url-query-service-group
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
+        default.api.timeout.ms: 10000
+        request.timeout.ms: 5000
+        retry.backoff.ms: 500
+        retry.backoff.max.ms: 5000
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
         spring.json.trusted.packages: "com.plema.url_query_service.domain.event"
@@ -32,6 +38,10 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
+        request.timeout.ms: 5000
+        delivery.timeout.ms: 10000
+        retry.backoff.ms: 500
+        retry.backoff.max.ms: 5000
         spring.json.add.type.headers: true
         spring.json.type.mapping: "created.v1:com.plema.url_query_service.domain.event.ShortUrlCreatedEvent,deleted.v1:com.plema.url_query_service.domain.event.ShortUrlDeletedEvent"
     listener:

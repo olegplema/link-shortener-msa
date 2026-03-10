@@ -3,6 +3,9 @@ server:
   shutdown: graceful
 spring:
   cloud:
+    circuitbreaker:
+      resilience4j:
+        disable-time-limiter: true
     gateway:
       server:
         webflux:
@@ -30,6 +33,16 @@ spring:
               predicates:
                 - Path=/api/urls,/api/urls/**
                 - Method=POST,DELETE
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: urlCommandCircuitBreaker
+                    fallbackUri: forward:/fallback/url-command-service
+                    statusCodes:
+                      - 500
+                      - 502
+                      - 503
+                      - 504
               metadata:
                 response-timeout: 5000
 
@@ -38,8 +51,37 @@ spring:
               predicates:
                 - Path=/r/**
                 - Method=GET
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: urlQueryCircuitBreaker
+                    fallbackUri: forward:/fallback/url-query-service
+                    statusCodes:
+                      - 500
+                      - 502
+                      - 503
+                      - 504
               metadata:
                 response-timeout: 2000
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 20
+        minimumNumberOfCalls: 10
+        permittedNumberOfCallsInHalfOpenState: 5
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 2s
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      urlCommandCircuitBreaker:
+        baseConfig: default
+      urlQueryCircuitBreaker:
+        baseConfig: default
 eureka:
   client:
     service-url:
