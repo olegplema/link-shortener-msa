@@ -9,14 +9,16 @@ import com.plema.url_command_service.domain.exception.ShortUrlNotFoundException;
 import com.plema.url_command_service.domain.repository.ShortUrlRepository;
 import com.plema.url_command_service.domain.vo.ShortUrlId;
 import com.plema.testsupport.ShortUrlAggregateTestBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,11 +42,19 @@ class DeleteShortUrlServiceTest {
     @Mock
     private OutboxRepository outboxRepository;
 
-    @InjectMocks
     private DeleteShortUrlService deleteShortUrlService;
+
+    private OffsetDateTime now;
 
     @Captor
     private ArgumentCaptor<ShortUrlId> idCaptor;
+
+    @BeforeEach
+    void setUp() {
+        now = OffsetDateTime.now();
+        Clock clock = Clock.fixed(now.toInstant(), now.getOffset());
+        deleteShortUrlService = new DeleteShortUrlService(shortUrlRepository, outboxRepository, clock);
+    }
 
     @Test
     void should_delete_short_url_and_publish_event_when_short_url_exists() {
@@ -73,6 +83,7 @@ class DeleteShortUrlServiceTest {
         assertThat(savedEvents.getFirst()).isInstanceOf(ShortUrlDeletedEvent.class);
         var event = (ShortUrlDeletedEvent) savedEvents.getFirst();
         assertThat(event.id()).isEqualTo(id);
+        assertThat(event.createdAt()).isEqualTo(now);
 
         assertThat(aggregate.getDomainEvents()).isEmpty();
     }

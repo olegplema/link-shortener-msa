@@ -40,14 +40,16 @@ class ShortUrlAggregateTest {
     @Test
     void should_register_deleted_event_when_deleted() {
         var aggregate = ShortUrlAggregateTestBuilder.aShortUrl().buildReconstituted();
+        var deletedAt = OffsetDateTime.now();
 
-        aggregate.delete();
+        aggregate.delete(deletedAt);
 
         assertThat(aggregate.getDomainEvents()).hasSize(1);
         var event = aggregate.getDomainEvents().get(0);
         assertThat(event).isInstanceOf(ShortUrlDeletedEvent.class);
         var deletedEvent = (ShortUrlDeletedEvent) event;
         assertThat(deletedEvent.id()).isEqualTo(aggregate.getId().value());
+        assertThat(deletedEvent.createdAt()).isEqualTo(deletedAt);
     }
 
     @Test
@@ -62,10 +64,11 @@ class ShortUrlAggregateTest {
     @Test
     void should_return_unmodifiable_domain_events_list_when_accessed() {
         var aggregate = ShortUrlAggregateTestBuilder.aShortUrl().buildCreated();
+        var deletedAt = OffsetDateTime.now();
 
         var events = aggregate.getDomainEvents();
 
-        assertThatThrownBy(() -> events.add(new ShortUrlDeletedEvent(aggregate.getId().value())))
+        assertThatThrownBy(() -> events.add(new ShortUrlDeletedEvent(aggregate.getId().value(), deletedAt)))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 

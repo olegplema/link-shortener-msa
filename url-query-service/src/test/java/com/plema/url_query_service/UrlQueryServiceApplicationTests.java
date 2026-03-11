@@ -1,13 +1,19 @@
 package com.plema.url_query_service;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.kafka.annotation.EnableKafkaRetryTopic;
 
-@SpringBootTest
+import static org.assertj.core.api.Assertions.assertThat;
+
 class UrlQueryServiceApplicationTests {
 
 	@Test
-	void contextLoads() {
+	@DisplayName("application bootstrap annotations should stay enabled")
+	void shouldDeclareRequiredBootstrapAnnotations() {
+		assertThat(UrlQueryServiceApplication.class)
+				.hasAnnotation(SpringBootApplication.class)
+				.hasAnnotation(EnableKafkaRetryTopic.class);
 	}
-
 }

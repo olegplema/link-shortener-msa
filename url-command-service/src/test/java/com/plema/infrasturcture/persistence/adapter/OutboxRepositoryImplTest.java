@@ -43,12 +43,12 @@ class OutboxRepositoryImplTest {
         var createdAt = OffsetDateTime.now();
         var expiration = createdAt.plusDays(1);
         var createdEvent = new ShortUrlCreatedEvent("abcde1", "http://example.com", expiration, createdAt);
-        var deletedEvent = new ShortUrlDeletedEvent("abcde2");
+        var deletedEvent = new ShortUrlDeletedEvent("abcde2", createdAt);
         var createdEntity = new OutboxEntity();
-        createdEntity.setType("plema.url.created.v1");
+        createdEntity.setEventType("created.v1");
         createdEntity.setPayload("{\"id\":\"abcde1\"}");
         var deletedEntity = new OutboxEntity();
-        deletedEntity.setType("plema.url.deleted.v1");
+        deletedEntity.setEventType("deleted.v1");
         deletedEntity.setPayload("{\"id\":\"abcde2\"}");
 
         when(outboxMapper.toEntity(createdEvent)).thenReturn(createdEntity);

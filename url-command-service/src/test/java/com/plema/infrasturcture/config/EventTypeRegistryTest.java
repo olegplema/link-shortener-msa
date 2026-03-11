@@ -17,17 +17,17 @@ class EventTypeRegistryTest {
         var expiration = createdAt.plusDays(1);
         var event = new ShortUrlCreatedEvent("abcde1", "http://example.com", expiration, createdAt);
 
-        var type = EventTypeRegistry.resolveType(event);
+        var type = EventTypeRegistry.resolveEventType(event);
 
-        assertThat(type).isEqualTo("plema.url.created.v1");
+        assertThat(type).isEqualTo("created.v1");
     }
 
     @Test
     void should_resolve_type_for_short_url_deleted_event() {
-        var event = new ShortUrlDeletedEvent("abcde1");
+        var event = new ShortUrlDeletedEvent("abcde1", OffsetDateTime.now());
 
-        var type = EventTypeRegistry.resolveType(event);
+        var type = EventTypeRegistry.resolveEventType(event);
 
-        assertThat(type).isEqualTo("plema.url.deleted.v1");
+        assertThat(type).isEqualTo("deleted.v1");
     }
 }
