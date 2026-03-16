@@ -15,7 +15,7 @@ class EventTypeRegistryTest {
     void should_resolve_type_for_short_url_created_event() {
         var createdAt = OffsetDateTime.now();
         var expiration = createdAt.plusDays(1);
-        var event = new ShortUrlCreatedEvent("abcde1", "http://example.com", expiration, createdAt);
+        var event = new ShortUrlCreatedEvent("abcde1", "http://example.com", expiration, 1L, createdAt);
 
         var type = EventTypeRegistry.resolveEventType(event);
 
@@ -24,7 +24,7 @@ class EventTypeRegistryTest {
 
     @Test
     void should_resolve_type_for_short_url_deleted_event() {
-        var event = new ShortUrlDeletedEvent("abcde1", OffsetDateTime.now());
+        var event = new ShortUrlDeletedEvent("abcde1", 2L, OffsetDateTime.now());
 
         var type = EventTypeRegistry.resolveEventType(event);
 

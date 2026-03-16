@@ -46,7 +46,9 @@ class GetShortUrlServiceTest {
                 "https://example.com",
                 OffsetDateTime.now().plusDays(7),
                 0,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                1L,
+                false
         );
 
         when(cache.get(id)).thenThrow(new RuntimeException("redis unavailable"));
@@ -71,7 +73,9 @@ class GetShortUrlServiceTest {
                 "https://example.org",
                 OffsetDateTime.now().plusDays(7),
                 0,
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
+                1L,
+                false
         );
 
         when(cache.get(id)).thenReturn(Optional.empty());

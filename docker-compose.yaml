@@ -1,6 +1,6 @@
 services:
   url-command-service-db:
-    image: postgres:18
+    build: ./db/cmd
     ports:
       - "5432:${POSTGRES_PORT}"
     environment:
@@ -11,6 +11,10 @@ services:
       - "postgres"
       - "-c"
       - "wal_level=logical"
+      - "-c"
+      - "shared_preload_libraries=pg_cron"
+      - "-c"
+      - "cron.database_name=${CMD_DB_NAME}"
     volumes:
       - cmd-db-data:/var/lib/postgresql
       - ./db/init/cmd:/docker-entrypoint-initdb.d:ro

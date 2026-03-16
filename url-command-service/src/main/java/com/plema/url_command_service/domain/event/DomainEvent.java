@@ -4,5 +4,6 @@ import java.time.OffsetDateTime;
 
 public sealed interface DomainEvent permits ShortUrlCreatedEvent, ShortUrlDeletedEvent {
     String id();
+    long aggregateVersion();
     OffsetDateTime createdAt();
 }

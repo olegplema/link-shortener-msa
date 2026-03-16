@@ -3,6 +3,7 @@ package com.plema.url_command_service.infrasturcture.persistence.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,8 @@ import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-@Entity(name = "short_urls")
+@Entity
+@Table(name = "short_urls")
 public class ShortUrlEntity {
 
     @Id
@@ -24,4 +26,7 @@ public class ShortUrlEntity {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
+
+    @Column(name = "version", nullable = false)
+    private long version;
 }

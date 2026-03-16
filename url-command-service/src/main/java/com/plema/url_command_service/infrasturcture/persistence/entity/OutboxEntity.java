@@ -11,11 +11,13 @@ import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-@Entity(name = "outbox")
+@Entity
+@Table(name = "outbox")
 public class OutboxEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "outbox_seq_generator")
+    @SequenceGenerator(name = "outbox_seq_generator", sequenceName = "outbox_seq")
     private Long id;
 
     @Column(name = "aggregatetype", nullable = false)

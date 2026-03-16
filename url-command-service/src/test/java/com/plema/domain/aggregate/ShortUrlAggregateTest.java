@@ -34,6 +34,7 @@ class ShortUrlAggregateTest {
         assertThat(createdEvent.id()).isEqualTo(id);
         assertThat(createdEvent.originalUrl()).isEqualTo(url);
         assertThat(createdEvent.expiration()).isEqualTo(expectedExpiration);
+        assertThat(createdEvent.aggregateVersion()).isEqualTo(1L);
         assertThat(createdEvent.createdAt()).isEqualTo(now);
     }
 
@@ -49,6 +50,7 @@ class ShortUrlAggregateTest {
         assertThat(event).isInstanceOf(ShortUrlDeletedEvent.class);
         var deletedEvent = (ShortUrlDeletedEvent) event;
         assertThat(deletedEvent.id()).isEqualTo(aggregate.getId().value());
+        assertThat(deletedEvent.aggregateVersion()).isEqualTo(2L);
         assertThat(deletedEvent.createdAt()).isEqualTo(deletedAt);
     }
 
@@ -68,7 +70,7 @@ class ShortUrlAggregateTest {
 
         var events = aggregate.getDomainEvents();
 
-        assertThatThrownBy(() -> events.add(new ShortUrlDeletedEvent(aggregate.getId().value(), deletedAt)))
+        assertThatThrownBy(() -> events.add(new ShortUrlDeletedEvent(aggregate.getId().value(), 2L, deletedAt)))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 

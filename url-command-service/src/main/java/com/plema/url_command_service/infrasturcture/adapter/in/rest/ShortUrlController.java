@@ -1,7 +1,7 @@
 package com.plema.url_command_service.infrasturcture.adapter.in.rest;
 
-import com.plema.url_command_service.application.service.CreateShortUrlService;
-import com.plema.url_command_service.application.service.DeleteShortUrlService;
+import com.plema.url_command_service.application.service.IdempotentCreateShortUrlService;
+import com.plema.url_command_service.application.service.IdempotentDeleteShortUrlService;
 import com.plema.url_command_service.infrasturcture.adapter.in.rest.dto.CreateShortUrlRequest;
 import com.plema.url_command_service.infrasturcture.adapter.in.rest.dto.CreateUrlResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,24 +13,36 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ShortUrlController {
 
-    private final CreateShortUrlService createShortUrlService;
-    private final DeleteShortUrlService deleteShortUrlService;
+    private final CreateShortUrlRequestHashService createShortUrlRequestHashService;
+    private final IdempotentCreateShortUrlService idempotentCreateShortUrlService;
+    private final IdempotentDeleteShortUrlService idempotentDeleteShortUrlService;
+    private final DeleteShortUrlRequestHashService deleteShortUrlRequestHashService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateUrlResponse createUrl(@RequestBody CreateShortUrlRequest createShortUrlRequest) {
-        var aggregate = createShortUrlService.createShortUrl(createShortUrlRequest.originalUrl());
-
-        return new CreateUrlResponse(
-                aggregate.getId().value(),
-                aggregate.getOriginalUrl().value(),
-                aggregate.getExpiration().value()
+    public CreateUrlResponse createUrl(
+            @RequestHeader("Idempotency-Key") String idempotencyKey,
+            @RequestBody CreateShortUrlRequest createShortUrlRequest
+    ) {
+        var result = idempotentCreateShortUrlService.createShortUrl(
+                idempotencyKey,
+                createShortUrlRequest.originalUrl(),
+                createShortUrlRequestHashService.createHash(createShortUrlRequest)
         );
+
+        return new CreateUrlResponse(result.id(), result.originalUrl(), result.expiration());
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUrl(@PathVariable String id) {
-        deleteShortUrlService.deleteShortUrl(id);
+    public void deleteUrl(
+            @RequestHeader("Idempotency-Key") String idempotencyKey,
+            @PathVariable String id
+    ) {
+        idempotentDeleteShortUrlService.deleteShortUrl(
+                idempotencyKey,
+                id,
+                deleteShortUrlRequestHashService.createHash(id)
+        );
     }
 }

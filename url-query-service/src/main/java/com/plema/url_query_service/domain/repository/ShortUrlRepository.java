@@ -6,6 +6,6 @@ import java.util.Optional;
 
 public interface ShortUrlRepository {
     Optional<ShortUrlReadModel> findById(String id);
-    void save(ShortUrlReadModel readModel);
-    void deleteById(String id);
+    void applyCreated(ShortUrlReadModel readModel);
+    void applyDeleted(String id, long aggregateVersion, java.time.OffsetDateTime eventCreatedAt);
 }

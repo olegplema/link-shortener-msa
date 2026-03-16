@@ -6,6 +6,8 @@ public record ShortUrlReadModel(String id,
                                 String originalUrl,
                                 OffsetDateTime expiration,
                                 Integer clickCount,
-                                OffsetDateTime createdAt
+                                OffsetDateTime createdAt,
+                                long aggregateVersion,
+                                boolean deleted
 ) {
 }

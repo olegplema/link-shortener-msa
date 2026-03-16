@@ -53,7 +53,8 @@ public final class ShortUrlAggregateTestBuilder {
                 new ShortUrlId(id),
                 new OriginalUrl(url),
                 new Expiration(expiration),
-                new CreatedAt(createdAt)
+                new CreatedAt(createdAt),
+                1L
         );
     }
 }

@@ -17,10 +17,10 @@ public class ShortUrlEntity {
     @Id
     private String id;
 
-    @Column(nullable = false)
+    @Column
     private String originalUrl;
 
-    @Column(nullable = false)
+    @Column
     private OffsetDateTime expiration;
 
     @Column(nullable = false)
@@ -29,6 +29,12 @@ public class ShortUrlEntity {
     @Column
     private OffsetDateTime lastAccessedAt;
 
-    @Column(nullable = false)
+    @Column
     private OffsetDateTime createdAt;
+
+    @Column(name = "aggregate_version", nullable = false)
+    private long aggregateVersion;
+
+    @Column(nullable = false)
+    private boolean deleted;
 }

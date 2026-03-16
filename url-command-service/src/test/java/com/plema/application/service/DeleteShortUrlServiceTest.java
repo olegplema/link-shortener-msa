@@ -83,6 +83,7 @@ class DeleteShortUrlServiceTest {
         assertThat(savedEvents.getFirst()).isInstanceOf(ShortUrlDeletedEvent.class);
         var event = (ShortUrlDeletedEvent) savedEvents.getFirst();
         assertThat(event.id()).isEqualTo(id);
+        assertThat(event.aggregateVersion()).isEqualTo(2L);
         assertThat(event.createdAt()).isEqualTo(now);
 
         assertThat(aggregate.getDomainEvents()).isEmpty();

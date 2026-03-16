@@ -34,7 +34,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class CreateShortUrlServiceTest {
-
     @Mock
     private ShortUrlRepository shortUrlRepository;
 
@@ -91,6 +90,7 @@ class CreateShortUrlServiceTest {
         assertThat(event.id()).isEqualTo(savedAggregate.getId().value());
         assertThat(event.originalUrl()).isEqualTo(url);
         assertThat(event.expiration()).isEqualTo(expectedExpiration);
+        assertThat(event.aggregateVersion()).isEqualTo(1L);
         assertThat(event.createdAt()).isEqualTo(now);
 
         assertThat(result.getDomainEvents()).isEmpty();
