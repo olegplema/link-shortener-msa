@@ -39,7 +39,15 @@ public class ShortUrlRepositoryImpl implements ShortUrlRepository {
 
     @Override
     @Transactional
-    public void delete(ShortUrlAggregate aggregate) {
-        shortUrlDao.deleteById(aggregate.getId().value());
+    public boolean markDeleted(ShortUrlAggregate aggregate) {
+        var newVersion = aggregate.getAggregateVersion();
+        var expectedVersion = newVersion - 1;
+
+        return shortUrlDao.markDeleted(
+                aggregate.getId().value(),
+                expectedVersion,
+                newVersion,
+                aggregate.getDeletedAt()
+        ) > 0;
     }
 }

@@ -25,9 +25,15 @@ public class DeleteShortUrlService {
 
         var aggregate = shortUrlRepository.findById(shortUrlId).orElseThrow(() -> new ShortUrlNotFoundException("Url with id " + id + " not found"));
 
+        if (aggregate.isDeleted()) {
+            throw new ShortUrlNotFoundException("Url with id " + id + " not found");
+        }
+
         aggregate.delete(OffsetDateTime.now(clock));
 
-        shortUrlRepository.delete(aggregate);
+        if (!shortUrlRepository.markDeleted(aggregate)) {
+            throw new ShortUrlNotFoundException("Url with id " + id + " not found");
+        }
 
         outboxRepository.saveEvents(aggregate.getDomainEvents());
         aggregate.clearDomainEvents();

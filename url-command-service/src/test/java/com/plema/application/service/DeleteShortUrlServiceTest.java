@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -70,11 +71,12 @@ class DeleteShortUrlServiceTest {
             savedEvents.addAll(events);
             return null;
         }).when(outboxRepository).saveEvents(anyList());
+        when(shortUrlRepository.markDeleted(aggregate)).thenReturn(true);
 
         deleteShortUrlService.deleteShortUrl(id);
 
         verify(shortUrlRepository).findById(idCaptor.capture());
-        verify(shortUrlRepository).delete(aggregate);
+        verify(shortUrlRepository).markDeleted(aggregate);
         verify(outboxRepository).saveEvents(anyList());
         verifyNoMoreInteractions(shortUrlRepository, outboxRepository);
 
@@ -101,6 +103,43 @@ class DeleteShortUrlServiceTest {
         verify(shortUrlRepository).findById(any(ShortUrlId.class));
         verifyNoInteractions(outboxRepository);
         verifyNoMoreInteractions(shortUrlRepository);
+    }
+
+    @Test
+    void should_throw_when_short_url_is_already_deleted() {
+        var id = "abcde1";
+        var aggregate = ShortUrlAggregateTestBuilder.aShortUrl()
+                .deletedAt(now.minusSeconds(1))
+                .buildReconstituted();
+
+        when(shortUrlRepository.findById(any(ShortUrlId.class))).thenReturn(Optional.of(aggregate));
+
+        assertThatThrownBy(() -> deleteShortUrlService.deleteShortUrl(id))
+                .isInstanceOf(ShortUrlNotFoundException.class);
+
+        verify(shortUrlRepository).findById(any(ShortUrlId.class));
+        verify(shortUrlRepository, never()).markDeleted(any());
+        verifyNoInteractions(outboxRepository);
+        verifyNoMoreInteractions(shortUrlRepository);
+    }
+
+    @Test
+    void should_throw_when_concurrent_delete_wins_race() {
+        var id = "abcde1";
+        var aggregate = ShortUrlAggregateTestBuilder.aShortUrl()
+                .withId(id)
+                .buildReconstituted();
+
+        when(shortUrlRepository.findById(any(ShortUrlId.class))).thenReturn(Optional.of(aggregate));
+        when(shortUrlRepository.markDeleted(aggregate)).thenReturn(false);
+
+        assertThatThrownBy(() -> deleteShortUrlService.deleteShortUrl(id))
+                .isInstanceOf(ShortUrlNotFoundException.class);
+
+        verify(shortUrlRepository).findById(any(ShortUrlId.class));
+        verify(shortUrlRepository).markDeleted(aggregate);
+        verify(outboxRepository, never()).saveEvents(anyList());
+        verifyNoMoreInteractions(shortUrlRepository, outboxRepository);
     }
 
     @Test

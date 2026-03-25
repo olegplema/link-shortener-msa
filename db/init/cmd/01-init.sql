@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS short_urls (
     original_url VARCHAR(255) NOT NULL,
     expiration TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    deleted_at TIMESTAMPTZ,
     version BIGINT NOT NULL
 );
 
@@ -36,6 +38,7 @@ ALTER SEQUENCE IF EXISTS idempotency_records_seq OWNED BY idempotency_records.id
 CREATE INDEX IF NOT EXISTS idx_outbox_created_at ON outbox (created_at);
 CREATE INDEX IF NOT EXISTS idx_outbox_aggregate ON outbox (aggregatetype, aggregateid);
 CREATE INDEX IF NOT EXISTS idx_idempotency_records_expires_at ON idempotency_records (expires_at);
+CREATE INDEX IF NOT EXISTS idx_short_urls_deleted_deleted_at ON short_urls (deleted, deleted_at);
 
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
@@ -55,6 +58,27 @@ BEGIN
                 SELECT id
                 FROM idempotency_records
                 WHERE expires_at < NOW()
+                LIMIT 1000
+            )
+            $$
+        );
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM cron.job
+        WHERE jobname = 'cleanup-deleted-short-urls'
+    ) THEN
+        PERFORM cron.schedule(
+            'cleanup-deleted-short-urls',
+            '15 * * * *',
+            $$
+            DELETE FROM short_urls
+            WHERE id IN (
+                SELECT id
+                FROM short_urls
+                WHERE deleted = TRUE
+                  AND deleted_at < NOW() - INTERVAL '7 days'
                 LIMIT 1000
             )
             $$

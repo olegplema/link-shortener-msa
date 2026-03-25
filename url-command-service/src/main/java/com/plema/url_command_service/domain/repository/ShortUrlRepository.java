@@ -10,5 +10,5 @@ public interface ShortUrlRepository {
     boolean existsById(ShortUrlId id);
     Optional<ShortUrlAggregate> findById(ShortUrlId id);
 
-    void delete(ShortUrlAggregate aggregate);
+    boolean markDeleted(ShortUrlAggregate aggregate);
 }

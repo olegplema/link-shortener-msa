@@ -26,6 +26,8 @@ class ShortUrlAggregateTest {
         assertThat(aggregate.getOriginalUrl().value()).isEqualTo(url);
         assertThat(aggregate.getExpiration().value()).isEqualTo(expectedExpiration);
         assertThat(aggregate.getCreatedAt().value()).isEqualTo(now);
+        assertThat(aggregate.isDeleted()).isFalse();
+        assertThat(aggregate.getDeletedAt()).isNull();
         assertThat(aggregate.getDomainEvents()).hasSize(1);
 
         var event = aggregate.getDomainEvents().get(0);
@@ -45,6 +47,8 @@ class ShortUrlAggregateTest {
 
         aggregate.delete(deletedAt);
 
+        assertThat(aggregate.isDeleted()).isTrue();
+        assertThat(aggregate.getDeletedAt()).isEqualTo(deletedAt);
         assertThat(aggregate.getDomainEvents()).hasSize(1);
         var event = aggregate.getDomainEvents().get(0);
         assertThat(event).isInstanceOf(ShortUrlDeletedEvent.class);
@@ -79,5 +83,17 @@ class ShortUrlAggregateTest {
         var aggregate = ShortUrlAggregateTestBuilder.aShortUrl().buildReconstituted();
 
         assertThat(aggregate.getDomainEvents()).isEmpty();
+    }
+
+    @Test
+    void should_fail_when_already_deleted_aggregate_is_deleted_again() {
+        var deletedAt = OffsetDateTime.now();
+        var aggregate = ShortUrlAggregateTestBuilder.aShortUrl()
+                .deletedAt(deletedAt)
+                .buildReconstituted();
+
+        assertThatThrownBy(() -> aggregate.delete(deletedAt.plusSeconds(1)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Short URL is already deleted.");
     }
 }

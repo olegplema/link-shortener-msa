@@ -16,6 +16,8 @@ public final class ShortUrlAggregateTestBuilder {
     private String url = DEFAULT_URL;
     private OffsetDateTime createdAt = OffsetDateTime.now();
     private OffsetDateTime expiration = OffsetDateTime.now().plusDays(1);
+    private boolean deleted;
+    private OffsetDateTime deletedAt;
 
     private ShortUrlAggregateTestBuilder() {
     }
@@ -44,6 +46,12 @@ public final class ShortUrlAggregateTestBuilder {
         return this;
     }
 
+    public ShortUrlAggregateTestBuilder deletedAt(OffsetDateTime deletedAt) {
+        this.deleted = true;
+        this.deletedAt = deletedAt;
+        return this;
+    }
+
     public ShortUrlAggregate buildCreated() {
         return ShortUrlAggregate.create(id, url, createdAt);
     }
@@ -54,6 +62,8 @@ public final class ShortUrlAggregateTestBuilder {
                 new OriginalUrl(url),
                 new Expiration(expiration),
                 new CreatedAt(createdAt),
+                deleted,
+                deletedAt,
                 1L
         );
     }

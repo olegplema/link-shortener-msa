@@ -21,6 +21,8 @@ public class ShortUrlAggregate {
     private final OriginalUrl originalUrl;
     private final Expiration expiration;
     private final CreatedAt createdAt;
+    private boolean deleted;
+    private OffsetDateTime deletedAt;
     private long aggregateVersion;
 
     private static final int DEFAULT_EXPIRATION_DAYS = 7;
@@ -33,12 +35,16 @@ public class ShortUrlAggregate {
             OriginalUrl originalUrl,
             Expiration expiration,
             CreatedAt createdAt,
+            boolean deleted,
+            OffsetDateTime deletedAt,
             long aggregateVersion
     ) {
         this.id = id;
         this.originalUrl = originalUrl;
         this.expiration = expiration;
         this.createdAt = createdAt;
+        this.deleted = deleted;
+        this.deletedAt = deletedAt;
         this.aggregateVersion = aggregateVersion;
     }
 
@@ -50,7 +56,7 @@ public class ShortUrlAggregate {
         var calculatedExpirationTime = now.plusDays(DEFAULT_EXPIRATION_DAYS);
         var expiration = new Expiration(calculatedExpirationTime);
 
-        var aggregate = new ShortUrlAggregate(id, originalUrl, expiration, createdAt, 0L);
+        var aggregate = new ShortUrlAggregate(id, originalUrl, expiration, createdAt, false, null, 0L);
         var eventVersion = aggregate.incrementVersion();
 
         aggregate.registerEvent(
@@ -71,12 +77,20 @@ public class ShortUrlAggregate {
             OriginalUrl originalUrl,
             Expiration expiration,
             CreatedAt createdAt,
+            boolean deleted,
+            OffsetDateTime deletedAt,
             long aggregateVersion
     ) {
-        return new ShortUrlAggregate(id, originalUrl, expiration, createdAt, aggregateVersion);
+        return new ShortUrlAggregate(id, originalUrl, expiration, createdAt, deleted, deletedAt, aggregateVersion);
     }
 
     public void delete(OffsetDateTime dateTime) {
+        if (deleted) {
+            throw new IllegalStateException("Short URL is already deleted.");
+        }
+
+        deleted = true;
+        deletedAt = dateTime;
         var eventVersion = incrementVersion();
         registerEvent(new ShortUrlDeletedEvent(id.value(), eventVersion, dateTime));
     }

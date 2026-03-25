@@ -1,6 +1,7 @@
 package com.plema.url_command_service.infrasturcture.adapter.in.rest;
 
 import com.plema.url_command_service.application.exception.IdempotencyConflictException;
+import com.plema.url_command_service.domain.exception.ShortUrlNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -21,5 +22,14 @@ public class CommandExceptionHandler {
         }
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
+    }
+
+    @ExceptionHandler(ShortUrlNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleShortUrlNotFound(ShortUrlNotFoundException exception) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+        problemDetail.setTitle("Short URL not found");
+        problemDetail.setProperty("code", "SHORT_URL_NOT_FOUND");
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
     }
 }

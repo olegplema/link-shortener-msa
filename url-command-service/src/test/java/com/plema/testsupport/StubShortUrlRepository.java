@@ -25,7 +25,7 @@ public class StubShortUrlRepository implements ShortUrlRepository {
         throw new UnsupportedOperationException("Not needed for this test.");
     }
 
-    public void delete(ShortUrlAggregate aggregate) {
+    public boolean markDeleted(ShortUrlAggregate aggregate) {
         throw new UnsupportedOperationException("Not needed for this test.");
     }
 }
