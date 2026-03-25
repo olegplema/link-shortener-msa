@@ -1,6 +1,7 @@
 package com.plema.url_query_service.infrastructure.adapter.in.rest;
 
 import com.plema.url_query_service.application.service.GetShortUrlService;
+import com.plema.url_query_service.domain.exception.ShortUrlNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class ShortUrlController {
                         ResponseEntity.status(HttpStatus.FOUND)
                                 .location(URI.create(shortUrlReadModel.originalUrl()))
                                 .build()
-        ).orElseGet(() -> ResponseEntity.notFound().build());
+        ).orElseThrow(() -> new ShortUrlNotFoundException("Short URL with code " + code + " not found"));
     }
 
 }
