@@ -17,7 +17,7 @@ spring:
       validation-timeout: 5000
       idle-timeout: 600000
       max-lifetime: 1800000
-      pool-name: query-pool
+      pool-name: command-pool
       data-source-properties:
         connectTimeout: 3
         socketTimeout: 5
@@ -27,8 +27,18 @@ spring:
 logging:
   level:
     root: INFO
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: WARN
     org.hibernate.type.descriptor.sql: OFF
-    org.hibernate.tool.schema: DEBUG
-    org.hibernate.orm.schema: DEBUG
-    org.springframework.boot.context.properties: DEBUG
+    org.hibernate.tool.schema: WARN
+    org.hibernate.orm.schema: WARN
+    org.springframework.boot.context.properties: WARN
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never

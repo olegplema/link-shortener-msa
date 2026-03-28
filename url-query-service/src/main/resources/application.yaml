@@ -7,8 +7,8 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:native}
   datasource:
     url: jdbc:postgresql://${QUERY_DB_HOST:localhost}:${POSTGRES_PORT:5432}/${QUERY_DB_NAME:query_url_db}
-    username: ${QUERY_DB_USER:postgres}
-    password: ${QUERY_DB_PASSWORD:postgres}
+    username: ${QUERY_DB_USER}
+    password: ${QUERY_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
@@ -30,7 +30,17 @@ spring:
     redis:
       host: ${QUERY_CACHE_HOST:localhost}
       port: ${QUERY_CACHE_PORT:6379}
-      password: ${QUERY_CACHE_PASSWORD:password}
+      password: ${QUERY_CACHE_PASSWORD}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
 logging:
   level:
     root: INFO

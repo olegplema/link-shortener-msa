@@ -17,9 +17,9 @@ spring:
               enabled: true
               lower-case-service-id: true
           globalcors:
-            cors-configurations:
-              '[/**]':
-                allowedOrigins: "http://localhost:3000" # TODO
+              cors-configurations:
+                '[/**]':
+                allowedOrigins: ${GATEWAY_ALLOWED_ORIGINS:http://localhost:3000}
                 allowedMethods:
                   - GET
                   - POST

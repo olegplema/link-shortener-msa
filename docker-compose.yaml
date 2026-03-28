@@ -1,8 +1,6 @@
 services:
   url-command-service-db:
     build: ./db/cmd
-    ports:
-      - "5432:${POSTGRES_PORT}"
     environment:
       POSTGRES_USER: ${CMD_DB_USER}
       POSTGRES_PASSWORD: ${CMD_DB_PASSWORD}
@@ -29,8 +27,6 @@ services:
 
   url-query-service-db:
     image: postgres:18
-    ports:
-      - "5433:${POSTGRES_PORT}"
     environment:
       POSTGRES_USER: ${QUERY_DB_USER}
       POSTGRES_PASSWORD: ${QUERY_DB_PASSWORD}
@@ -49,8 +45,6 @@ services:
 
   url-query-service-cache:
     image: redis:8.4-alpine
-    ports:
-      - "6379:${QUERY_CACHE_PORT}"
     networks:
       - backend-network
     command: >
@@ -69,9 +63,6 @@ services:
     image: confluentinc/cp-kafka:7.8.0
     hostname: kafka1
     container_name: kafka1
-    ports:
-      - "9092:9092"
-      - "9093:9093"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_BROKER_ID: 1
@@ -102,9 +93,6 @@ services:
     image: confluentinc/cp-kafka:7.8.0
     hostname: kafka2
     container_name: kafka2
-    ports:
-      - "9094:9092"
-      - "9095:9093"
     environment:
       KAFKA_NODE_ID: 2
       KAFKA_BROKER_ID: 2
@@ -135,9 +123,6 @@ services:
     image: confluentinc/cp-kafka:7.8.0
     hostname: kafka3
     container_name: kafka3
-    ports:
-      - "9096:9092"
-      - "9097:9093"
     environment:
       KAFKA_NODE_ID: 3
       KAFKA_BROKER_ID: 3
@@ -166,8 +151,6 @@ services:
 
   debezium:
     image: quay.io/debezium/connect:3.0
-    ports:
-      - "8083:8083"
     environment:
       BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
       GROUP_ID: debezium
@@ -196,7 +179,7 @@ services:
       start_period: 30s
 
   kafka-ui:
-    image: provectuslabs/kafka-ui:latest
+    image: provectuslabs/kafka-ui:v0.7.2
     ports:
       - "9000:${SERVICE_PORT}"
     environment:
@@ -214,8 +197,6 @@ services:
     build: ./config-server
     env_file:
       - .env
-    ports:
-      - "8888:${SERVICE_PORT}"
     networks:
       - backend-network
     healthcheck:
@@ -229,8 +210,6 @@ services:
     build: ./discovery-service
     env_file:
       - .env
-    ports:
-      - "8761:${SERVICE_PORT}"
     networks:
       - backend-network
     healthcheck:
