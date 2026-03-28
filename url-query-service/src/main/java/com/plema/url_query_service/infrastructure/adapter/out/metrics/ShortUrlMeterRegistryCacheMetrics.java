@@ -7,7 +7,7 @@ import com.plema.url_query_service.application.port.out.ShortUrlCacheMetrics;
 
 @Component
 @AllArgsConstructor
-public class ShortUrlMaterRegistryCacheMetrics implements ShortUrlCacheMetrics {
+public class ShortUrlMeterRegistryCacheMetrics implements ShortUrlCacheMetrics {
     private static final String CACHE_UNAVAILABLE_METRIC = "cache_unavailable";
     private static final String OPERATION_TAG = "operation";
     private static final String GET_OPERATION = "get";

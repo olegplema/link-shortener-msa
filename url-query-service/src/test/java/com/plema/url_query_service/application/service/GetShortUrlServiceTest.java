@@ -1,9 +1,9 @@
 package com.plema.url_query_service.application.service;
 
 import com.plema.url_query_service.application.port.out.ShortUrlCache;
+import com.plema.url_query_service.application.port.out.ShortUrlCacheMetrics;
 import com.plema.url_query_service.domain.model.ShortUrlReadModel;
 import com.plema.url_query_service.domain.repository.ShortUrlRepository;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,13 +29,14 @@ class GetShortUrlServiceTest {
     @Mock
     private ShortUrlRepository repository;
 
-    private SimpleMeterRegistry meterRegistry;
+    @Mock
+    private ShortUrlCacheMetrics cacheMetrics;
+
     private GetShortUrlService getShortUrlService;
 
     @BeforeEach
     void setUp() {
-        meterRegistry = new SimpleMeterRegistry();
-        getShortUrlService = new GetShortUrlService(cache, repository, meterRegistry);
+        getShortUrlService = new GetShortUrlService(cache, repository, cacheMetrics);
     }
 
     @Test
@@ -57,10 +58,7 @@ class GetShortUrlServiceTest {
         var result = getShortUrlService.findById(id);
 
         assertThat(result).contains(model);
-        assertThat(meterRegistry.get("cache_unavailable")
-                .tag("operation", "get")
-                .counter()
-                .count()).isEqualTo(1.0);
+        verify(cacheMetrics).incrementCacheGetUnavailable();
         verify(repository).findById(id);
         verify(cache).put(eq(id), eq(model), any());
     }
@@ -85,10 +83,7 @@ class GetShortUrlServiceTest {
         var result = getShortUrlService.findById(id);
 
         assertThat(result).contains(model);
-        assertThat(meterRegistry.get("cache_unavailable")
-                .tag("operation", "put")
-                .counter()
-                .count()).isEqualTo(1.0);
+        verify(cacheMetrics).incrementCachePutUnavailable();
         verify(repository).findById(id);
         verify(cache).put(eq(id), eq(model), any());
     }

@@ -4,7 +4,6 @@ import com.plema.url_query_service.application.port.out.ShortUrlCache;
 import com.plema.url_query_service.domain.model.ShortUrlReadModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
