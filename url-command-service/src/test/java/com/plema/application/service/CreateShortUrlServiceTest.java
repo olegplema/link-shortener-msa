@@ -1,6 +1,7 @@
 package com.plema.application.service;
 
 import com.plema.url_command_service.application.port.out.OutboxRepository;
+import com.plema.url_command_service.application.port.out.ShortUrlIdGenerator;
 import com.plema.url_command_service.application.service.CreateShortUrlService;
 import com.plema.url_command_service.domain.aggregate.ShortUrlAggregate;
 import com.plema.url_command_service.domain.event.DomainEvent;
@@ -43,6 +44,9 @@ class CreateShortUrlServiceTest {
     @Mock
     private OutboxRepository outboxRepository;
 
+    @Mock
+    private ShortUrlIdGenerator shortUrlIdGenerator;
+
     private CreateShortUrlService createShortUrlService;
 
     private OffsetDateTime now;
@@ -57,14 +61,23 @@ class CreateShortUrlServiceTest {
     void setUp() {
         now = OffsetDateTime.now();
         Clock clock = Clock.fixed(now.toInstant(), now.getOffset());
-        createShortUrlService = new CreateShortUrlService(shortUrlRepository, urlUniquenessChecker, outboxRepository, clock);
+        createShortUrlService = new CreateShortUrlService(
+                shortUrlRepository,
+                urlUniquenessChecker,
+                outboxRepository,
+                shortUrlIdGenerator,
+                clock
+        );
     }
 
     @Test
     void should_create_short_url_and_publish_event_when_request_valid() {
         var url = "http://example.com";
+        var expectedId = "abc123";
         var expectedExpiration = now.plusDays(7);
         var savedEvents = new ArrayList<DomainEvent>();
+
+        org.mockito.Mockito.when(shortUrlIdGenerator.nextId()).thenReturn(expectedId);
 
         doAnswer(invocation -> {
             List<DomainEvent> events = invocation.getArgument(0);
@@ -80,6 +93,7 @@ class CreateShortUrlServiceTest {
 
         var savedAggregate = aggregateCaptor.getValue();
         assertThat(savedAggregate.getOriginalUrl().value()).isEqualTo(url);
+        assertThat(savedAggregate.getId().value()).isEqualTo(expectedId);
         assertThat(savedAggregate.getExpiration().value()).isEqualTo(expectedExpiration);
         assertThat(savedAggregate.getCreatedAt().value()).isEqualTo(now);
         assertThat(idCaptor.getValue().value()).isEqualTo(savedAggregate.getId().value());
@@ -100,6 +114,8 @@ class CreateShortUrlServiceTest {
     void should_throw_when_url_invalid() {
         var invalidUrl = "ftp://example.com";
 
+        org.mockito.Mockito.when(shortUrlIdGenerator.nextId()).thenReturn("abc123");
+
         assertThatThrownBy(() -> createShortUrlService.createShortUrl(invalidUrl))
                 .isInstanceOf(InvalidUrlException.class);
 
@@ -109,6 +125,8 @@ class CreateShortUrlServiceTest {
     @Test
     void should_throw_when_short_url_id_already_exists() {
         var url = "http://example.com";
+
+        org.mockito.Mockito.when(shortUrlIdGenerator.nextId()).thenReturn("abc123");
 
         doThrow(new UrlIdExistsException("Short URL already exists."))
                 .when(urlUniquenessChecker)

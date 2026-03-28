@@ -1,7 +1,7 @@
 package com.plema.url_command_service.application.service;
 
-import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.plema.url_command_service.application.port.out.OutboxRepository;
+import com.plema.url_command_service.application.port.out.ShortUrlIdGenerator;
 import com.plema.url_command_service.domain.aggregate.ShortUrlAggregate;
 import com.plema.url_command_service.domain.repository.ShortUrlRepository;
 import com.plema.url_command_service.domain.service.UrlUniquenessChecker;
@@ -20,12 +20,12 @@ public class CreateShortUrlService {
     private final ShortUrlRepository shortUrlRepository;
     private final UrlUniquenessChecker urlUniquenessChecker;
     private final OutboxRepository outboxRepository;
+    private final ShortUrlIdGenerator shortUrlIdGenerator;
     private final Clock clock;
 
     @Transactional
     public ShortUrlAggregate createShortUrl(String url) {
-        var nanoId = NanoIdUtils.randomNanoId();
-        var shortUrl = ShortUrlAggregate.create(nanoId, url, OffsetDateTime.now(clock));
+        var shortUrl = ShortUrlAggregate.create(shortUrlIdGenerator.nextId(), url, OffsetDateTime.now(clock));
 
         urlUniquenessChecker.ensureUnique(shortUrl.getId());
 
