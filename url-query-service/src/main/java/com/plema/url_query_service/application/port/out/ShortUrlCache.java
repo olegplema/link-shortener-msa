@@ -9,5 +9,4 @@ public interface ShortUrlCache {
     Optional<ShortUrlReadModel> get(String id);
     void put(String id, ShortUrlReadModel model, Duration ttl);
     void evict(String id);
-    void clear();
 }

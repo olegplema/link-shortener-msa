@@ -1,6 +1,7 @@
 package com.plema.url_query_service.infrastructure.adapter.in.rest;
 
 import com.plema.url_query_service.application.service.GetShortUrlService;
+import com.plema.url_query_service.application.port.out.RedirectMetrics;
 import com.plema.url_query_service.domain.exception.ShortUrlNotFoundException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -24,6 +25,7 @@ public class ShortUrlController {
     private static final String SHORT_URL_CODE_PATTERN = "^[A-Za-z0-9_-]{5,32}$";
 
     private final GetShortUrlService queryService;
+    private final RedirectMetrics redirectMetrics;
 
     @GetMapping("/{code}")
     public ResponseEntity<Void> redirect(
@@ -37,7 +39,10 @@ public class ShortUrlController {
                         ResponseEntity.status(HttpStatus.FOUND)
                                 .location(URI.create(shortUrlReadModel.originalUrl()))
                                 .build()
-        ).orElseThrow(() -> new ShortUrlNotFoundException("Short URL with code " + code + " not found"));
+        ).orElseThrow(() -> {
+            redirectMetrics.incrementRedirectNotFound();
+            return new ShortUrlNotFoundException("Short URL with code " + code + " not found");
+        });
     }
 
 }

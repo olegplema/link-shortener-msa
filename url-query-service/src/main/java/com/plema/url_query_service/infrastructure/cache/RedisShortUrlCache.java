@@ -35,12 +35,4 @@ public class RedisShortUrlCache implements ShortUrlCache {
         var key = KEY_PREFIX + id;
         redisTemplate.delete(key);
     }
-
-    @Override
-    public void clear() {
-        var keys = redisTemplate.keys(KEY_PREFIX + "*");
-        if (keys != null && !keys.isEmpty()) {
-            redisTemplate.delete(keys);
-        }
-    }
 }

@@ -42,6 +42,8 @@ management:
         enabled: true
       show-details: never
 logging:
+  pattern:
+    level: "%5p [requestId:%X{requestId:-}]"
   level:
     root: INFO
     org.springframework.kafka: WARN

@@ -18,6 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 class FallbackController {
 
     private static final String SERVICE_NAME_PATTERN = "^[A-Za-z0-9-]+$";
+    private final GatewayMetrics gatewayMetrics;
+
+    FallbackController(GatewayMetrics gatewayMetrics) {
+        this.gatewayMetrics = gatewayMetrics;
+    }
 
     @RequestMapping(path = "/fallback/{service}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Map<String, Object>> fallback(
@@ -26,6 +31,7 @@ class FallbackController {
             @Pattern(regexp = SERVICE_NAME_PATTERN, message = "service contains unsupported characters")
             String service
     ) {
+        gatewayMetrics.incrementFallback(service);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(Map.of(
                         "timestamp", Instant.now().toString(),

@@ -7,6 +7,7 @@ import com.plema.url_command_service.application.idempotency.IdempotencyOperatio
 import com.plema.url_command_service.application.idempotency.IdempotencyRecordSnapshot;
 import com.plema.url_command_service.application.idempotency.CreateShortUrlResultSnapshotSerializer;
 import com.plema.url_command_service.application.model.CreateShortUrlResult;
+import com.plema.url_command_service.application.port.out.IdempotencyMetrics;
 import com.plema.url_command_service.application.port.out.IdempotencyRecordRepository;
 import com.plema.url_command_service.application.service.CreateShortUrlService;
 import com.plema.url_command_service.application.service.IdempotentCreateShortUrlService;
@@ -39,6 +40,9 @@ class IdempotentCreateShortUrlServiceTest {
     @Mock
     private CreateShortUrlService createShortUrlService;
 
+    @Mock
+    private IdempotencyMetrics idempotencyMetrics;
+
     @Captor
     private ArgumentCaptor<String> responseBodyCaptor;
 
@@ -52,7 +56,8 @@ class IdempotentCreateShortUrlServiceTest {
         idempotentCreateShortUrlService = new IdempotentCreateShortUrlService(
                 idempotencyRecordRepository,
                 createShortUrlService,
-                serializer
+                serializer,
+                idempotencyMetrics
         );
     }
 
@@ -154,6 +159,7 @@ class IdempotentCreateShortUrlServiceTest {
         assertThat(response.originalUrl()).isEqualTo(originalUrl);
         assertThat(response.expiration()).isEqualTo(now.plusDays(7));
         verifyNoInteractions(createShortUrlService);
+        verify(idempotencyMetrics).incrementReplay(IdempotencyOperation.CREATE_SHORT_URL);
     }
 
     @Test
@@ -182,6 +188,10 @@ class IdempotentCreateShortUrlServiceTest {
                 });
 
         verifyNoInteractions(createShortUrlService);
+        verify(idempotencyMetrics).incrementConflict(
+                IdempotencyOperation.CREATE_SHORT_URL,
+                IdempotencyConflictCode.IDEMPOTENCY_KEY_PAYLOAD_MISMATCH.name()
+        );
     }
 
     @Test
@@ -217,6 +227,7 @@ class IdempotentCreateShortUrlServiceTest {
         assertThat(response.id()).isEqualTo("abc123");
         assertThat(response.originalUrl()).isEqualTo(originalUrl);
         verify(createShortUrlService, never()).createShortUrl(any());
+        verify(idempotencyMetrics).incrementReplay(IdempotencyOperation.CREATE_SHORT_URL);
     }
 
     @Test
@@ -251,5 +262,9 @@ class IdempotentCreateShortUrlServiceTest {
                 });
 
         verify(createShortUrlService, never()).createShortUrl(any());
+        verify(idempotencyMetrics).incrementConflict(
+                IdempotencyOperation.CREATE_SHORT_URL,
+                IdempotencyConflictCode.REQUEST_IN_PROGRESS.name()
+        );
     }
 }

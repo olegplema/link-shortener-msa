@@ -19,9 +19,14 @@ public class GetShortUrlService {
     private final ShortUrlCacheMetrics cacheMetrics;
 
     public Optional<ShortUrlReadModel> findById(String id) {
-        var cachedModel = getFromCache(id);
-        if (cachedModel.isPresent()) {
-            return cachedModel;
+        var cachedResult = getFromCache(id);
+        if (cachedResult.model().isPresent()) {
+            cacheMetrics.incrementCacheHit();
+            return cachedResult.model();
+        }
+
+        if (cachedResult.available()) {
+            cacheMetrics.incrementCacheMiss();
         }
 
         return repository.findById(id)
@@ -42,12 +47,12 @@ public class GetShortUrlService {
         return duration;
     }
 
-    private Optional<ShortUrlReadModel> getFromCache(String id) {
+    private CacheLookupResult getFromCache(String id) {
         try {
-            return cache.get(id);
+            return new CacheLookupResult(true, cache.get(id));
         } catch (RuntimeException ex) {
             cacheMetrics.incrementCacheGetUnavailable();
-            return Optional.empty();
+            return new CacheLookupResult(false, Optional.empty());
         }
     }
 
@@ -59,4 +64,6 @@ public class GetShortUrlService {
         }
     }
 
+    private record CacheLookupResult(boolean available, Optional<ShortUrlReadModel> model) {
+    }
 }

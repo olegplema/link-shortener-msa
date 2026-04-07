@@ -5,6 +5,7 @@ import com.plema.url_command_service.application.idempotency.CreateShortUrlResul
 import com.plema.url_command_service.application.idempotency.IdempotencyOperation;
 import com.plema.url_command_service.application.idempotency.IdempotencyRecordSnapshot;
 import com.plema.url_command_service.application.model.CreateShortUrlResult;
+import com.plema.url_command_service.application.port.out.IdempotencyMetrics;
 import com.plema.url_command_service.application.port.out.IdempotencyRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class IdempotentCreateShortUrlService {
     private final IdempotencyRecordRepository idempotencyRecordRepository;
     private final CreateShortUrlService createShortUrlService;
     private final CreateShortUrlResultSnapshotSerializer createShortUrlResultSnapshotSerializer;
+    private final IdempotencyMetrics idempotencyMetrics;
     @Transactional
     public CreateShortUrlResult createShortUrl(String idempotencyKey, String originalUrl, String requestHash) {
         var existingRecord = idempotencyRecordRepository.findActiveByOperationAndKey(
@@ -72,22 +74,34 @@ public class IdempotentCreateShortUrlService {
     private CreateShortUrlResult resolveAfterLostRace(String idempotencyKey, String requestHash) {
         return idempotencyRecordRepository.findActiveByOperationAndKey(OPERATION, idempotencyKey)
                 .map(existingRecord -> replayOrReject(existingRecord, requestHash))
-                .orElseThrow(() -> IdempotencyConflictException.requestInProgress(RETRY_AFTER_MS));
+                .orElseThrow(this::requestInProgressConflict);
     }
 
     private CreateShortUrlResult replayOrReject(IdempotencyRecordSnapshot existingRecord, String requestHash) {
         if (!existingRecord.requestHash().equals(requestHash)) {
-            throw IdempotencyConflictException.payloadMismatch();
+            throw payloadMismatchConflict();
         }
 
         if (existingRecord.responseBody() == null) {
-            throw IdempotencyConflictException.requestInProgress(RETRY_AFTER_MS);
+            throw requestInProgressConflict();
         }
 
         return replayResponse(existingRecord);
     }
 
     private CreateShortUrlResult replayResponse(IdempotencyRecordSnapshot existingRecord) {
+        idempotencyMetrics.incrementReplay(OPERATION);
         return createShortUrlResultSnapshotSerializer.deserialize(existingRecord.responseBody());
+    }
+
+    private IdempotencyConflictException payloadMismatchConflict() {
+        idempotencyMetrics.incrementConflict(OPERATION, com.plema.url_command_service.application.exception.IdempotencyConflictCode.IDEMPOTENCY_KEY_PAYLOAD_MISMATCH.name());
+        return IdempotencyConflictException.payloadMismatch();
+    }
+
+    private IdempotencyConflictException requestInProgressConflict() {
+        var exception = IdempotencyConflictException.requestInProgress(RETRY_AFTER_MS);
+        idempotencyMetrics.incrementConflict(OPERATION, com.plema.url_command_service.application.exception.IdempotencyConflictCode.REQUEST_IN_PROGRESS.name());
+        return exception;
     }
 }

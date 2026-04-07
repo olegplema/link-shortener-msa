@@ -25,6 +25,8 @@ spring:
         tcpKeepAlive: true
         options: -c statement_timeout=4000 -c lock_timeout=3000 -c idle_in_transaction_session_timeout=5000
 logging:
+  pattern:
+    level: "%5p [requestId:%X{requestId:-}]"
   level:
     root: INFO
     org.hibernate.SQL: WARN

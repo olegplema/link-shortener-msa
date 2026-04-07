@@ -6,6 +6,7 @@ import com.plema.url_command_service.application.exception.IdempotencyConflictEx
 import com.plema.url_command_service.application.idempotency.DeleteShortUrlResultSnapshotSerializer;
 import com.plema.url_command_service.application.idempotency.IdempotencyOperation;
 import com.plema.url_command_service.application.idempotency.IdempotencyRecordSnapshot;
+import com.plema.url_command_service.application.port.out.IdempotencyMetrics;
 import com.plema.url_command_service.application.port.out.IdempotencyRecordRepository;
 import com.plema.url_command_service.application.service.DeleteShortUrlService;
 import com.plema.url_command_service.application.service.IdempotentDeleteShortUrlService;
@@ -34,6 +35,9 @@ class IdempotentDeleteShortUrlServiceTest {
     @Mock
     private DeleteShortUrlService deleteShortUrlService;
 
+    @Mock
+    private IdempotencyMetrics idempotencyMetrics;
+
     @Captor
     private ArgumentCaptor<String> responseBodyCaptor;
 
@@ -45,7 +49,8 @@ class IdempotentDeleteShortUrlServiceTest {
         idempotentDeleteShortUrlService = new IdempotentDeleteShortUrlService(
                 idempotencyRecordRepository,
                 deleteShortUrlService,
-                serializer
+                serializer,
+                idempotencyMetrics
         );
     }
 
@@ -132,6 +137,7 @@ class IdempotentDeleteShortUrlServiceTest {
         idempotentDeleteShortUrlService.deleteShortUrl(idempotencyKey, id, requestHash);
 
         verifyNoInteractions(deleteShortUrlService);
+        verify(idempotencyMetrics).incrementReplay(IdempotencyOperation.DELETE_SHORT_URL);
     }
 
     @Test
@@ -160,6 +166,10 @@ class IdempotentDeleteShortUrlServiceTest {
                 });
 
         verifyNoInteractions(deleteShortUrlService);
+        verify(idempotencyMetrics).incrementConflict(
+                IdempotencyOperation.DELETE_SHORT_URL,
+                IdempotencyConflictCode.IDEMPOTENCY_KEY_PAYLOAD_MISMATCH.name()
+        );
     }
 
     @Test
@@ -190,6 +200,7 @@ class IdempotentDeleteShortUrlServiceTest {
         idempotentDeleteShortUrlService.deleteShortUrl(idempotencyKey, id, requestHash);
 
         verify(deleteShortUrlService, never()).deleteShortUrl(id);
+        verify(idempotencyMetrics).incrementReplay(IdempotencyOperation.DELETE_SHORT_URL);
     }
 
     @Test
@@ -224,5 +235,9 @@ class IdempotentDeleteShortUrlServiceTest {
                 });
 
         verify(deleteShortUrlService, never()).deleteShortUrl(id);
+        verify(idempotencyMetrics).incrementConflict(
+                IdempotencyOperation.DELETE_SHORT_URL,
+                IdempotencyConflictCode.REQUEST_IN_PROGRESS.name()
+        );
     }
 }

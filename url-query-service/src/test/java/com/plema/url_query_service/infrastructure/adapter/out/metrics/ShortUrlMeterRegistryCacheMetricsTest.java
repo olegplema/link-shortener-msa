@@ -28,6 +28,24 @@ class ShortUrlMeterRegistryCacheMetricsTest {
     }
 
     @Test
+    void should_increment_cache_hit_counter() {
+        cacheMetrics.incrementCacheHit();
+
+        assertThat(meterRegistry.get("cache_hit_total")
+                .counter()
+                .count()).isEqualTo(1.0);
+    }
+
+    @Test
+    void should_increment_cache_miss_counter() {
+        cacheMetrics.incrementCacheMiss();
+
+        assertThat(meterRegistry.get("cache_miss_total")
+                .counter()
+                .count()).isEqualTo(1.0);
+    }
+
+    @Test
     void should_increment_cache_put_unavailable_counter() {
         cacheMetrics.incrementCachePutUnavailable();
 
