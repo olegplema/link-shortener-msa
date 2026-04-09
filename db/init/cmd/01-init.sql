@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS outbox (
     aggregateid VARCHAR(255) NOT NULL,
     eventtype VARCHAR(255) NOT NULL,
     payload JSONB NOT NULL,
+    request_id VARCHAR(128),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

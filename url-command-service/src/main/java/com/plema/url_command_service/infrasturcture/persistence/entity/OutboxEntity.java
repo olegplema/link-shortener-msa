@@ -33,6 +33,9 @@ public class OutboxEntity {
     @Column(columnDefinition = "jsonb", nullable = false)
     private String payload;
 
+    @Column(name = "request_id", length = 128)
+    private String requestId;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
